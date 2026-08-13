@@ -62,7 +62,6 @@
             display: flex;
             flex-direction: column;
             
-            /* NEU: Echter 3D Blätter-Effekt ohne Opacity-Fade */
             transform-origin: 0% 50%; /* Scharnier links */
             transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
             pointer-events: auto;
@@ -70,7 +69,6 @@
             
             overflow-y: auto;
             overflow-x: hidden;
-            /* CRITICAL FIX: Damit cqw (Container Width) anstelle von vw funktioniert! */
             container-type: inline-size; 
         }
 
@@ -79,9 +77,8 @@
         .page::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .page::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Klasse für umgeblätterte Seiten */
         .page.turned {
-            transform: rotateY(-180deg); /* Klappt komplett nach links um (verborgen durch backface-visibility) */
+            transform: rotateY(-180deg); /* Klappt komplett nach links um */
             pointer-events: none;
         }
 
@@ -110,9 +107,7 @@
             display: grid;
         }
 
-        /* 3-Spalten Grid */
         .grid-3-cols { grid-template-columns: 1fr 2.2fr 1fr; column-gap: 3%; }
-        /* 2-Spalten Grid */
         .grid-2-cols { grid-template-columns: 1fr 1fr; column-gap: 4%; }
         
         .news-column { display: flex; flex-direction: column; gap: 20px; }
@@ -130,7 +125,6 @@
         .compact-headline { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5cqw; line-height: 1.1; margin: 0 0 5px 0; }
         .secondary-headline { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.2cqw; line-height: 1.1; margin: 0 0 8px 0; }
         
-        /* Hervorgehobene Quellenangabe */
         .article-author { 
             font-family: 'Oswald', sans-serif; font-size: 0.8cqw; text-transform: uppercase; 
             border-top: 2px solid #ddd; border-bottom: 2px solid #ddd; 
@@ -139,8 +133,6 @@
         }
         
         .article-text { font-size: 0.95cqw; line-height: 1.6; text-align: justify; color: #1a1a1a; margin-bottom: 20px; }
-        
-        /* Überschriften zwingen, lange Wörter umzubrechen */
         h2, h3, h4, .logo-text { overflow-wrap: break-word; word-wrap: break-word; hyphens: auto; }
         .theme-boulevard h2, .theme-boulevard h3 { hyphens: auto; }
 
@@ -172,83 +164,28 @@
         
         .category-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; margin-left: 5px; }
         
-        /* Toggle Switch Styles */
         .theme-toggle-container {
-            display: flex;
-            align-items: center;
-            background-color: #e5e7eb;
-            border-radius: 9999px;
-            padding: 4px;
-            cursor: pointer;
-            position: relative;
-            width: 200px;
-            height: 36px;
+            display: flex; align-items: center; background-color: #e5e7eb;
+            border-radius: 9999px; padding: 4px; cursor: pointer; position: relative; width: 200px; height: 36px;
         }
-        
-        .theme-toggle-option {
-            flex: 1;
-            text-align: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-            z-index: 10;
-            transition: color 0.3s;
-            color: #6b7280;
-        }
-        
-        .theme-toggle-option.active {
-            color: #111827;
-        }
-        
+        .theme-toggle-option { flex: 1; text-align: center; font-size: 0.8rem; font-weight: 600; z-index: 10; transition: color 0.3s; color: #6b7280; }
+        .theme-toggle-option.active { color: #111827; }
         .theme-toggle-slider {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: calc(50% - 4px);
-            height: 28px;
-            background-color: white;
-            border-radius: 9999px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 5;
+            position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: 28px; background-color: white; border-radius: 9999px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 5;
         }
-        
-        body.theme-boulevard .theme-toggle-slider {
-            transform: translateX(100%);
-        }
+        body.theme-boulevard .theme-toggle-slider { transform: translateX(100%); }
 
-        /* NEU: Boulevard (BILD) Theme - Print Optik */
         body.theme-boulevard { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #e5e7eb; }
-        .theme-boulevard .page { padding: 1.5% 2%; } /* Engere Ränder für Boulevard */
+        .theme-boulevard .page { padding: 1.5% 2%; }
         
-        /* Hilfsklasse für den gelben Textmarker-Effekt über Zeilenumbrüche hinweg */
-        .box-decoration-clone {
-            -webkit-box-decoration-break: clone;
-            box-decoration-break: clone;
-        }
+        .box-decoration-clone { -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 
         .theme-boulevard .newspaper-header { border-bottom: 6px solid #e3000f; }
-        .theme-boulevard .logo-text { 
-            font-family: 'Oswald', sans-serif !important; 
-            background-color: #e3000f; 
-            color: white !important; 
-            padding: 5px 25px; 
-            font-size: 7.5cqw !important; 
-            font-weight: 900;
-            letter-spacing: -2px !important;
-            border-radius: 2px;
-        }
+        .theme-boulevard .logo-text { font-family: 'Oswald', sans-serif !important; background-color: #e3000f; color: white !important; padding: 5px 25px; font-size: 7.5cqw !important; font-weight: 900; letter-spacing: -2px !important; border-radius: 2px; }
         .theme-boulevard .lead-headline { font-family: 'Oswald', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; font-size: 3.8cqw; line-height: 1; }
         .theme-boulevard .secondary-headline { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 2.5cqw; line-height: 1.05; }
         .theme-boulevard .compact-headline { font-family: 'Oswald', sans-serif; font-weight: 700; line-height: 1.1; }
-        .theme-boulevard .article-kicker { 
-            background-color: #e3000f !important; 
-            color: white !important; 
-            display: inline-block; 
-            padding: 3px 8px; 
-            margin-bottom: 6px;
-            font-size: 1cqw;
-            border-radius: 2px;
-        }
+        .theme-boulevard .article-kicker { background-color: #e3000f !important; color: white !important; display: inline-block; padding: 3px 8px; margin-bottom: 6px; font-size: 1cqw; border-radius: 2px; }
         .theme-boulevard .section-header { background-color: #e3000f; }
         .theme-boulevard .header-date-bar { border-top-color: #e3000f; border-bottom-color: #e3000f; color: #e3000f; }
     </style>
@@ -263,7 +200,6 @@
             <div id="page-indicator" class="text-sm font-bold bg-gray-200 px-3 py-1 rounded-full text-gray-700">Seite 1 / 1</div>
         </div>
         <div class="flex items-center gap-4">
-            <!-- NEU: Theme Toggle Switch -->
             <div class="theme-toggle-container" id="theme-toggle">
                 <div class="theme-toggle-slider"></div>
                 <div class="theme-toggle-option active" id="toggle-opt-classic">KLASSISCH</div>
@@ -299,9 +235,7 @@
         
         <div class="flex flex-col gap-6">
             
-            <!-- OBERE REIHE: Struktur & Seiten -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <!-- Name -->
                 <div class="col-span-1 md:border-r border-gray-200 md:pr-4">
                     <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider"><i class="fa-solid fa-palette text-blue-500 mr-1"></i> Allgemein</h3>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Name der Zeitung</label>
@@ -309,7 +243,6 @@
                     <p class="text-[11px] text-gray-500 leading-tight">Den Layout-Stil (Klassisch / Boulevard) wechseln Sie direkt im Schalter oben im Hauptmenü.</p>
                 </div>
                 
-                <!-- Seiten config -->
                 <div class="col-span-2 flex flex-col h-full">
                     <h3 class="text-sm font-bold text-gray-700 mb-1 uppercase tracking-wider"><i class="fa-solid fa-layer-group text-blue-500 mr-1"></i> Seiten pro Ressort (Heftstruktur)</h3>
                     <p class="text-[11px] text-gray-500 mb-3 leading-tight"><i class="fa-solid fa-up-down text-blue-500 mr-1"></i> <b>Drag & Drop:</b> Ziehen Sie die Boxen, um die Reihenfolge der Seiten in der Zeitung zu ändern. Eine "0" blendet die Rubrik aus.</p>
@@ -319,23 +252,18 @@
                 </div>
             </div>
 
-            <!-- UNTERE REIHE: Feeds -->
             <div>
                 <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider"><i class="fa-solid fa-rss text-blue-500 mr-1"></i> Nachrichtenquellen & Feeds</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
-                    <!-- Links: Hinzufügen -->
                     <div class="col-span-1 flex flex-col gap-4">
                         <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm relative overflow-hidden">
-                            <!-- Zauberstab Deko -->
                             <div class="absolute -right-4 -top-4 opacity-10 text-6xl text-purple-500 pointer-events-none"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                            
                             <h4 class="text-sm font-bold text-gray-800 mb-3 relative z-10">Eigene Quelle anbinden</h4>
                             <input type="text" id="new-feed-name" placeholder="Name (z.B. Spiegel)" class="w-full p-2 text-sm border border-gray-300 rounded mb-2 focus:ring-1 focus:ring-blue-500 relative z-10">
                             <input type="text" id="new-feed-url" placeholder="Adresse (z.B. spiegel.de) ODER Thema (z.B. KI)" class="w-full p-2 text-sm border border-gray-300 rounded mb-1 focus:ring-1 focus:ring-blue-500 relative z-10">
                             
-                            <!-- NEU: Smart Modus Hinweis -->
-                            <p class="text-[10px] text-gray-500 mb-3 leading-tight relative z-10"><i class="fa-solid fa-wand-magic-sparkles text-purple-500 mr-1"></i><b>Smart-Modus:</b> Geben Sie einfach eine normale Website ODER einen Suchbegriff (z.B. "Künstliche Intelligenz") ein, wir generieren automatisch einen Feed daraus!</p>
+                            <p class="text-[10px] text-gray-500 mb-3 leading-tight relative z-10"><i class="fa-solid fa-wand-magic-sparkles text-purple-500 mr-1"></i><b>Smart-Modus:</b> Geben Sie eine URL oder ein Such-Schlagwort ein! Das System nutzt nun ein intelligentes Bing/Google-Fallback für maximale Stabilität.</p>
 
                             <input type="text" id="new-feed-category" list="category-list" placeholder="Rubrik (z.B. Politik)" class="w-full p-2 text-sm border border-gray-300 rounded mb-4 focus:ring-1 focus:ring-blue-500 relative z-10">
                             <datalist id="category-list"></datalist>
@@ -344,22 +272,16 @@
                         
                         <div class="border border-gray-200 rounded-lg bg-gray-50 flex flex-col h-[280px]">
                             <h4 class="text-[11px] font-bold text-gray-700 p-3 pb-2 uppercase tracking-wide border-b border-gray-200 bg-gray-100 rounded-t-lg"><i class="fa-solid fa-book-open mr-1 text-blue-500"></i> Feed-Katalog durchsuchen:</h4>
-                            <div class="overflow-y-auto p-3 flex-grow" id="suggested-feeds-container">
-                                <!-- JS Füllung des Katalogs -->
-                            </div>
+                            <div class="overflow-y-auto p-3 flex-grow" id="suggested-feeds-container"></div>
                         </div>
                     </div>
                     
-                    <!-- Rechts: Liste -->
                     <div class="col-span-2">
-                        <ul id="modal-feed-list" class="divide-y divide-gray-100 border border-gray-200 rounded-lg h-[550px] overflow-y-auto bg-white shadow-inner">
-                            <!-- JS Füllung -->
-                        </ul>
+                        <ul id="modal-feed-list" class="divide-y divide-gray-100 border border-gray-200 rounded-lg h-[550px] overflow-y-auto bg-white shadow-inner"></ul>
                     </div>
                 </div>
             </div>
             
-            <!-- NEU: Backup & Export -->
             <div class="mt-2 bg-blue-50 p-4 rounded-lg border border-blue-100 flex justify-between items-center shadow-sm">
                 <div>
                     <h4 class="text-sm font-bold text-blue-900"><i class="fa-solid fa-floppy-disk mr-1"></i> Backup & Umzug</h4>
@@ -417,6 +339,7 @@
     function prevPage() { if (currentPage > 1) { currentPage--; updatePageVisibility(); } }
     function turnToPage(num) { if (num >= 1 && num <= totalPages) { currentPage = num; updatePageVisibility(); } }
 
+    const RSS2JSON_API = 'https://api.rss2json.com/v1/api.json?rss_url=';
     const CATEGORIES = {
         'Politik': '#dc2626', 'Wirtschaft': '#2563eb', 'Sport': '#16a34a', 
         'Kultur': '#9333ea', 'Technik': '#ea580c', 'Wissenschaft': '#0284c7', 
@@ -510,13 +433,13 @@
         ]
     };
 
-    const dbName = "NewspaperBuilderDB_V6";
+    const dbName = "NewspaperBuilderDB_V5";
     const storeName = "rssFeeds";
     let db;
 
     function initDB() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(dbName, 6);
+            const request = indexedDB.open(dbName, 5);
             request.onerror = (e) => reject("DB Error");
             request.onsuccess = (e) => { db = e.target.result; resolve(db); };
             request.onupgradeneeded = (e) => {
@@ -598,9 +521,7 @@
         return items;
     }
 
-    async function fetchRSS(feed) {
-        const urlToFetch = feed.url;
-
+    async function attemptFetch(urlToFetch, feed) {
         try {
             const res = await fetchWithTimeout(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(urlToFetch)}`, { timeout: 4000 });
             if (res.ok) {
@@ -629,9 +550,40 @@
         return []; 
     }
 
+    async function fetchRSS(feed) {
+        let urlsToTry = [feed.url];
+        
+        // DAS HERZSTÜCK DER STABILITÄT: Dynamischer Bing <-> Google Fallback
+        try {
+            if (feed.url.includes('news.google.com/rss/search') || feed.url.includes('bing.com/news/search')) {
+                const urlObj = new URL(feed.url);
+                const query = urlObj.searchParams.get('q');
+                if (query) {
+                    const bingUrl = `https://www.bing.com/news/search?q=${query}&format=rss&cc=de&setlang=de`;
+                    const googleUrl = `https://news.google.com/rss/search?q=${query}&hl=de&gl=DE&ceid=DE:de`;
+                    // Wenn Bing im System gespeichert war, probiere Bing zuerst, dann Google (und umgekehrt)
+                    urlsToTry = feed.url.includes('bing.com') ? [bingUrl, googleUrl] : [googleUrl, bingUrl];
+                }
+            }
+        } catch(e) {}
+
+        for (const targetUrl of urlsToTry) {
+            let items = await attemptFetch(targetUrl, feed);
+            if (items && items.length > 0) {
+                return items; // Bei Erfolg sofort abbrechen und Daten nutzen
+            }
+        }
+        console.warn("Feed-Blockade bei:", feed.url);
+        return []; 
+    }
+
     function extractImage(article) {
         if (!article) return null;
-        if (article.enclosure && article.enclosure.link && String(article.enclosure.type).startsWith('image/')) return article.enclosure.link;
+        
+        if (article.enclosure && article.enclosure.link && String(article.enclosure.type).startsWith('image/')) {
+            return article.enclosure.link;
+        }
+        
         if (article.thumbnail && article.thumbnail !== '') return article.thumbnail;
         if (article.image && typeof article.image === 'string' && article.image !== '') return article.image;
         
@@ -639,7 +591,9 @@
         const match = htmlContent.match(/<img[^>]+src\s*=\s*(["'])(.*?)\1/i);
         if (match && match[2]) {
             let imgUrl = match[2];
-            if (imgUrl.startsWith('//')) imgUrl = 'https:' + imgUrl;
+            if (imgUrl.startsWith('//')) {
+                imgUrl = 'https:' + imgUrl;
+            }
             return imgUrl;
         }
         return null;
@@ -659,7 +613,9 @@
         const datalist = document.getElementById('category-list');
         if (datalist) {
             datalist.innerHTML = '';
-            PAGE_CATEGORIES.forEach(cat => datalist.innerHTML += `<option value="${cat}">`);
+            PAGE_CATEGORIES.forEach(cat => {
+                datalist.innerHTML += `<option value="${cat}">`;
+            });
         }
 
         PAGE_CATEGORIES.forEach(cat => {
@@ -693,20 +649,40 @@
             });
 
             item.addEventListener('dragend', function() {
-                setTimeout(() => { this.classList.remove('opacity-40'); draggedItem = null; }, 0);
+                setTimeout(() => {
+                    this.classList.remove('opacity-40');
+                    draggedItem = null;
+                }, 0);
             });
 
-            item.addEventListener('dragover', function(e) { e.preventDefault(); });
-            item.addEventListener('dragenter', function(e) { e.preventDefault(); if (draggedItem !== this) this.style.border = '2px dashed #3b82f6'; });
-            item.addEventListener('dragleave', function() { this.style.border = ''; });
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            item.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                if (draggedItem !== this) {
+                    this.style.border = '2px dashed #3b82f6';
+                }
+            });
+
+            item.addEventListener('dragleave', function() {
+                this.style.border = '';
+            });
+
             item.addEventListener('drop', function(e) {
                 this.style.border = '';
                 if (draggedItem && draggedItem !== this) {
                     const allItems = [...container.querySelectorAll('.category-config-item')];
                     const draggedIndex = allItems.indexOf(draggedItem);
                     const droppedIndex = allItems.indexOf(this);
-                    if (draggedIndex < droppedIndex) this.parentNode.insertBefore(draggedItem, this.nextSibling);
-                    else this.parentNode.insertBefore(draggedItem, this);
+                    
+                    if (draggedIndex < droppedIndex) {
+                        this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                    } else {
+                        this.parentNode.insertBefore(draggedItem, this);
+                    }
+                    
                     updateCategoryOrder();
                 }
             });
@@ -716,10 +692,12 @@
     function updateCategoryOrder() {
         const container = document.getElementById('page-config-container');
         const newOrder = [];
-        container.querySelectorAll('.category-config-item').forEach(item => newOrder.push(item.dataset.cat));
+        container.querySelectorAll('.category-config-item').forEach(item => {
+            newOrder.push(item.dataset.cat);
+        });
         PAGE_CATEGORIES = newOrder;
         localStorage.setItem('newspaper_custom_categories', JSON.stringify(PAGE_CATEGORIES));
-        renderModalLists(); 
+        renderModalLists();
     }
 
     window.removeCategory = function(cat) {
@@ -875,12 +853,16 @@
         const placeholders = document.querySelectorAll('.async-og-image');
         for (const ph of placeholders) {
             const url = ph.dataset.url;
-            if (!url) { ph.remove(); continue; }
+            if (!url) {
+                ph.remove();
+                continue;
+            }
 
             (async () => {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    
                     const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: controller.signal });
                     clearTimeout(timeoutId);
                     
@@ -897,8 +879,12 @@
                     if (imgUrl) {
                         ph.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover" style="filter: grayscale(10%) contrast(1.1);">`;
                         ph.classList.remove('async-og-image');
-                    } else throw new Error("Kein Bild gefunden");
-                } catch (e) { ph.remove(); }
+                    } else {
+                        throw new Error("Kein Bild auf der Zielseite gefunden");
+                    }
+                } catch (e) {
+                    ph.remove();
+                }
             })();
         }
     }
@@ -1054,10 +1040,11 @@
         btn.disabled = true;
 
         try {
-            buildBookStructure(); 
+            buildBookStructure();
 
             const feeds = await getFeedsFromDB();
             
+            // Paralleles Laden für drastische Leistungssteigerung
             const fetchPromises = feeds.map(feed => fetchRSS(feed));
             const results = await Promise.allSettled(fetchPromises);
             
@@ -1080,18 +1067,20 @@
             allArticles.forEach(a => {
                 if (pageConfig[a.category] === 0) return;
 
-                let hasDesc = (a.description && a.description.length > 0);
-                let hasContent = (a.content && a.content.length > 0);
-                
-                if (a.title && (hasDesc || hasContent) && !seenTitles.has(a.title)) {
+                // FIX: Gelockerter Filter, damit auch Artikel ohne Beschreibung (oft bei Google/Bing News der Fall)
+                // in die Rotaion gelangen und das Quellen-Balancing nicht zerschossen wird.
+                if (a.title && a.title.length > 5 && !seenTitles.has(a.title)) {
                     seenTitles.add(a.title); 
                     a.image = extractImage(a);
                     
                     let useContent = false;
-                    if (a.content && a.description) useContent = a.content.length > a.description.length;
-                    else if (a.content) useContent = true;
+                    if (a.content && a.description) {
+                        useContent = a.content.length > a.description.length;
+                    } else if (a.content) {
+                        useContent = true;
+                    }
                     
-                    a.cleanText = stripHtml(useContent ? a.content : a.description);
+                    a.cleanText = stripHtml(useContent ? a.content : (a.description || ''));
                     valid.push(a);
                     if(byCat[a.category]) byCat[a.category].push(a);
                 }
@@ -1101,6 +1090,7 @@
 
             const getArticle = (cat, needImage = false) => {
                 let pool = cat ? (byCat[cat] || []) : valid;
+                
                 if (pool.length === 0) return null;
                 
                 pool.sort((a, b) => {
@@ -1109,6 +1099,7 @@
                         const bHasImg = b.image ? 1 : 0;
                         if (aHasImg !== bHasImg) return bHasImg - aHasImg;
                     }
+                    
                     const aUsage = sourceUsage[a.sourceName] || 0;
                     const bUsage = sourceUsage[b.sourceName] || 0;
                     if (aUsage !== bUsage) return aUsage - bUsage;
@@ -1118,12 +1109,15 @@
                     return (dateB || 0) - (dateA || 0);
                 });
                 
-                const article = pool[0]; 
+                const article = pool[0];
                 
                 if (article) {
                     sourceUsage[article.sourceName] = (sourceUsage[article.sourceName] || 0) + 1;
+                    
                     valid = valid.filter(a => a.title !== article.title);
-                    Object.keys(byCat).forEach(k => { byCat[k] = byCat[k].filter(a => a.title !== article.title); });
+                    Object.keys(byCat).forEach(k => {
+                        byCat[k] = byCat[k].filter(a => a.title !== article.title);
+                    });
                 }
                 return article;
             };
@@ -1134,7 +1128,7 @@
                 const needImg = slot.dataset.needImage === 'true';
                 let catPrefs = (type === 'lead' || type === 'blvd-lead') ? 'Politik' : null; 
                 const art = getArticle(catPrefs, needImg) || getArticle(null, needImg);
-                if(art) slot.innerHTML = createArticleHTML(art, type, needImg); 
+                if(art) slot.innerHTML = createArticleHTML(art, type, needImg);
                 else slot.style.display = 'none';
             });
 
@@ -1152,7 +1146,7 @@
                     
                     const art = getArticle(cat, needImg);
                     if (art) {
-                        slot.innerHTML = createArticleHTML(art, type, needImg); 
+                        slot.innerHTML = createArticleHTML(art, type, needImg);
                         articlesFoundOnPage++;
                     } else {
                         slot.style.display = 'none'; 
@@ -1179,13 +1173,15 @@
             if (teaser1Kicker && teaser1Headline) {
                 if (p2) {
                     var firstHeadline2 = '';
-                    var hlEl2 = p2.querySelector('h3'); 
+                    var hlEl2 = p2.querySelector('h3');
                     if(hlEl2) firstHeadline2 = hlEl2.textContent;
                     
                     teaser1Kicker.textContent = p2.dataset.category;
                     teaser1Headline.textContent = firstHeadline2 || 'Mehr im Innenteil...';
                     teaser1Headline.parentElement.style.display = 'block';
-                } else teaser1Headline.parentElement.style.display = 'none';
+                } else {
+                    teaser1Headline.parentElement.style.display = 'none';
+                }
             }
 
             var teaser2Kicker = document.getElementById('p1-teaser2-kicker');
@@ -1200,7 +1196,9 @@
                     teaser2Kicker.textContent = p3.dataset.category;
                     teaser2Headline.textContent = firstHeadline3 || 'Mehr im Innenteil...';
                     teaser2Headline.parentElement.style.display = 'block';
-                } else teaser2Headline.parentElement.style.display = 'none';
+                } else {
+                    teaser2Headline.parentElement.style.display = 'none';
+                }
             }
 
         } catch (error) {
@@ -1250,17 +1248,6 @@
         });
     }
 
-    // Funktion um Rubrik eines Feeds zu wechseln
-    window.changeFeedCategory = async function(id, newCat) {
-        const feeds = await getFeedsFromDB();
-        const feedToUpdate = feeds.find(f => f.id === id);
-        if(feedToUpdate) {
-            feedToUpdate.category = newCat;
-            await updateFeedInDB(feedToUpdate);
-            renderModalLists();
-        }
-    }
-
     function renderSuggestedFeeds() {
         const container = document.getElementById('suggested-feeds-container');
         container.innerHTML = ''; 
@@ -1269,7 +1256,7 @@
             const groupTitle = document.createElement('h5');
             groupTitle.className = 'text-[11px] font-bold text-gray-500 mt-3 mb-1.5 uppercase border-b border-gray-200 pb-1';
             groupTitle.textContent = groupName;
-            if (container.children.length === 0) groupTitle.classList.remove('mt-3'); 
+            if (container.children.length === 0) groupTitle.classList.remove('mt-3');
             container.appendChild(groupTitle);
             
             const btnContainer = document.createElement('div');
@@ -1315,6 +1302,7 @@
                 };
                 btnContainer.appendChild(btn);
             });
+            
             container.appendChild(btnContainer);
         });
     }
@@ -1328,9 +1316,12 @@
         const modal = document.getElementById('settings-modal');
         
         document.getElementById('book').addEventListener('click', (e) => {
-            if (e.target.closest('a') || e.target.closest('button') || e.target.closest('input') || e.target.closest('.teaser-link') || e.target.closest('.page-nav')) return;
+            if (e.target.closest('a') || e.target.closest('button') || e.target.closest('input') || e.target.closest('.teaser-link') || e.target.closest('.page-nav')) {
+                return;
+            }
             const clickX = e.clientX;
             const halfScreen = window.innerWidth / 2;
+            
             if (clickX < halfScreen) prevPage();
             else nextPage();
         });
@@ -1344,7 +1335,7 @@
             newspaperTheme = newspaperTheme === 'classic' ? 'boulevard' : 'classic';
             localStorage.setItem('newspaper_theme', newspaperTheme);
             applyTheme();
-            refreshNewspaper(); 
+            refreshNewspaper();
         };
         
         document.getElementById('btn-open-settings').onclick = async () => {
@@ -1372,7 +1363,7 @@
         
         document.getElementById('btn-refresh').onclick = refreshNewspaper;
 
-        // BING NEWS INTEGRATION
+        // SMART MODUS - MIT INTELLIGENTEM FALLBACK
         document.getElementById('btn-add-feed').onclick = async () => {
             const name = document.getElementById('new-feed-name').value.trim();
             let inputUrlOrKeyword = document.getElementById('new-feed-url').value.trim();
@@ -1392,15 +1383,24 @@
                 const isKeyword = !inputUrlOrKeyword.includes('.') || inputUrlOrKeyword.includes(' ');
 
                 if (isKeyword) {
-                    // Bing News Search für Keywords
-                    finalUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(inputUrlOrKeyword)}&format=rss&cc=de&setlang=de`;
                     smartModeUsed = true;
-                    testArticles = await fetchRSS({ name, url: finalUrl, category });
+                    
+                    // SCHRITT 1: BING NEWS TESTEN
+                    const bUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(inputUrlOrKeyword)}&format=rss&cc=de&setlang=de`;
+                    finalUrl = bUrl;
+                    testArticles = await attemptFetch(bUrl, { name, category });
+                    
+                    // SCHRITT 2: WENN BING BLOCKIERT, SOFORT ZU GOOGLE NEWS WECHSELN
+                    if (!testArticles || testArticles.length === 0) {
+                        const gUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(inputUrlOrKeyword)}&hl=de&gl=DE&ceid=DE:de`;
+                        finalUrl = gUrl;
+                        testArticles = await attemptFetch(gUrl, { name, category });
+                    }
                 } else {
                     if (!inputUrlOrKeyword.startsWith('http')) inputUrlOrKeyword = 'https://' + inputUrlOrKeyword;
                     
                     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Teste URL...';
-                    testArticles = await fetchRSS({ name, url: inputUrlOrKeyword, category });
+                    testArticles = await attemptFetch(inputUrlOrKeyword, { name, category });
 
                     if (!testArticles || testArticles.length === 0) {
                         const hasFeedIndicator = inputUrlOrKeyword.includes('.rss') || inputUrlOrKeyword.includes('.xml') || inputUrlOrKeyword.endsWith('feed') || inputUrlOrKeyword.endsWith('feed/');
@@ -1408,11 +1408,11 @@
                         if (!hasFeedIndicator) {
                             btn.innerHTML = '<i class="fa-solid fa-magnifying-glass fa-beat mr-1"></i> Suche Feed-Pfad...';
                             const feedUrl = inputUrlOrKeyword.endsWith('/') ? inputUrlOrKeyword + 'feed/' : inputUrlOrKeyword + '/feed/';
-                            const altTest = await fetchRSS({ name, url: feedUrl, category });
+                            const altTest = await attemptFetch(feedUrl, { name, category });
                             
                             if (altTest && altTest.length > 0) {
                                 testArticles = altTest;
-                                inputUrlOrKeyword = feedUrl; 
+                                inputUrlOrKeyword = feedUrl;
                             }
                         }
                     }
@@ -1421,14 +1421,23 @@
                         try {
                             btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-bounce mr-1"></i> Smart-Modus...';
                             const domain = new URL(inputUrlOrKeyword).hostname.replace('www.', '');
-                            // Bing News Search für Domains (site:)
-                            finalUrl = `https://www.bing.com/news/search?q=site:${domain}&format=rss&cc=de&setlang=de`;
                             smartModeUsed = true;
-                            testArticles = await fetchRSS({ name, url: finalUrl, category });
+                            
+                            const bUrl = `https://www.bing.com/news/search?q=site:${domain}&format=rss&cc=de&setlang=de`;
+                            finalUrl = bUrl;
+                            testArticles = await attemptFetch(bUrl, { name, category });
+                            
+                            if (!testArticles || testArticles.length === 0) {
+                                const gUrl = `https://news.google.com/rss/search?q=site:${domain}&hl=de&gl=DE&ceid=DE:de`;
+                                finalUrl = gUrl;
+                                testArticles = await attemptFetch(gUrl, { name, category });
+                            }
                         } catch(e) {
                             console.error("Smart Convert Fehler", e);
                         }
-                    } else finalUrl = inputUrlOrKeyword;
+                    } else {
+                        finalUrl = inputUrlOrKeyword;
+                    }
                 }
 
                 if ((testArticles && testArticles.length > 0) || smartModeUsed) {
@@ -1470,7 +1479,9 @@
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 btn.classList.remove('opacity-70', 'cursor-not-allowed');
-            } else alert("Bitte gültigen Namen und Web-Adresse/Thema eingeben.");
+            } else {
+                alert("Bitte gültigen Namen und Web-Adresse/Thema eingeben.");
+            }
         };
 
         document.addEventListener('keydown', (e) => {
