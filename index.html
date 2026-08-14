@@ -39,7 +39,22 @@
             width: 100%;
             max-width: 1800px;
             height: 95vh;
+            transition: all 0.3s ease;
         }
+
+        /* Vollbild-Anpassungen */
+        :fullscreen body { padding: 0; background-color: #d1d5db; display: flex; align-items: center; justify-content: center; }
+        :fullscreen #app-container { height: 100vh; max-width: 100vw; gap: 0; padding: 20px; box-sizing: border-box; justify-content: center; }
+        :fullscreen .controls-topbar { display: none; } /* Topbar im Vollbild ausblenden für maximales Leseerlebnis */
+        :fullscreen #reading-zone { height: 100%; display: flex; align-items: center; }
+        :fullscreen .book-wrapper { max-height: 95vh; width: 95%; margin: auto; }
+
+        /* Fallbacks für verschiedene Browser */
+        :-webkit-full-screen body { padding: 0; background-color: #d1d5db; display: flex; align-items: center; justify-content: center; }
+        :-webkit-full-screen #app-container { height: 100vh; max-width: 100vw; gap: 0; padding: 20px; box-sizing: border-box; justify-content: center; }
+        :-webkit-full-screen .controls-topbar { display: none; }
+        :-webkit-full-screen #reading-zone { height: 100%; display: flex; align-items: center; }
+        :-webkit-full-screen .book-wrapper { max-height: 95vh; width: 95%; margin: auto; }
 
         .book-wrapper {
             flex-grow: 1;
@@ -270,6 +285,9 @@
                 <div class="theme-toggle-option" id="toggle-opt-boulevard">BOULEVARD</div>
             </div>
             
+            <button id="btn-fullscreen" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-3 rounded text-sm transition font-bold shadow-sm" title="Vollbild Modus">
+                <i class="fa-solid fa-expand"></i><span class="hidden lg:inline ml-1">Vollbild</span>
+            </button>
             <button id="btn-open-settings" class="bg-gray-800 hover:bg-gray-900 text-white py-2 px-4 rounded text-sm transition">
                 <i class="fa-solid fa-gear mr-1"></i> Einstellungen
             </button>
@@ -279,7 +297,7 @@
         </div>
     </div>
 
-    <div class="relative w-full">
+    <div class="relative w-full" id="reading-zone">
         <button id="nav-prev" class="page-nav" onclick="prevPage()"><i class="fa-solid fa-chevron-left"></i></button>
         <button id="nav-next" class="page-nav" onclick="nextPage()"><i class="fa-solid fa-chevron-right"></i></button>
         
@@ -330,12 +348,14 @@
                             <!-- Zauberstab Deko -->
                             <div class="absolute -right-4 -top-4 opacity-10 text-6xl text-purple-500 pointer-events-none"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
                             
-                            <h4 class="text-sm font-bold text-gray-800 mb-3 relative z-10">Eigene Quelle anbinden</h4>
-                            <input type="text" id="new-feed-name" placeholder="Name (z.B. Spiegel)" class="w-full p-2 text-sm border border-gray-300 rounded mb-2 focus:ring-1 focus:ring-blue-500 relative z-10">
-                            <input type="text" id="new-feed-url" placeholder="Adresse (z.B. spiegel.de) ODER Thema (z.B. KI)" class="w-full p-2 text-sm border border-gray-300 rounded mb-1 focus:ring-1 focus:ring-blue-500 relative z-10">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3 relative z-10">Eigene Quelle / Social anbinden</h4>
+                            <input type="text" id="new-feed-name" placeholder="Name (z.B. Spiegel, r/de, RocketBeans)" class="w-full p-2 text-sm border border-gray-300 rounded mb-2 focus:ring-1 focus:ring-blue-500 relative z-10">
+                            <input type="text" id="new-feed-url" placeholder="Adresse (z.B. reddit.com/r/de) ODER Thema" class="w-full p-2 text-sm border border-gray-300 rounded mb-1 focus:ring-1 focus:ring-blue-500 relative z-10">
                             
-                            <!-- NEU: Smart Modus Hinweis -->
-                            <p class="text-[10px] text-gray-500 mb-3 leading-tight relative z-10"><i class="fa-solid fa-wand-magic-sparkles text-purple-500 mr-1"></i><b>Smart-Modus:</b> Geben Sie einfach eine normale Website ODER einen Suchbegriff (z.B. "Künstliche Intelligenz") ein, wir generieren automatisch einen Feed daraus!</p>
+                            <!-- NEU: YouTube und Reddit Hinweise -->
+                            <p class="text-[10px] text-gray-500 mb-3 leading-tight relative z-10">
+                                <i class="fa-solid fa-wand-magic-sparkles text-purple-500 mr-1"></i><b>Smart-Modus:</b> Unterstützt Webseiten, Themen-Schlagwörter, <b>YouTube-Kanäle</b> und <b>Reddit-Foren</b> automatisch! (Instagram/X via ext. Link)
+                            </p>
 
                             <input type="text" id="new-feed-category" list="category-list" placeholder="Rubrik (z.B. Politik)" class="w-full p-2 text-sm border border-gray-300 rounded mb-4 focus:ring-1 focus:ring-blue-500 relative z-10">
                             <datalist id="category-list"></datalist>
@@ -562,96 +582,82 @@
         });
     }
 
-    // NEU: Timeout-Kontrolle (Beendet hängende Server-Abfragen nach X Sekunden)
-    const fetchWithTimeout = async (resource, options = {}) => {
-        const { timeout = 6000 } = options;
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        const response = await fetch(resource, { ...options, signal: controller.signal });
-        clearTimeout(id);
-        return response;
-    };
-
-    // NEU: Nativer XML Parser (Umgeht die Blockaden von Schnittstellen für Google News Schlagwörter!)
-    function parseRSSXml(xmlString, feed) {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-        
-        // Fehlerhafte XML Dokumente sofort abfangen
-        if (xmlDoc.querySelector("parsererror")) return [];
-        
-        // Unterstützt nun normales RSS (item) UND Atom-Feeds (entry) für Google News
-        const items = Array.from(xmlDoc.querySelectorAll("item, entry"));
-        return items.map(item => {
-            const getTag = (tag) => {
-                const el = item.querySelector(tag);
-                return el ? el.textContent.trim() : '';
-            };
-            const enc = item.querySelector("enclosure, link[rel='enclosure']");
-            
-            // Atom Feeds (z.B. Google News) nutzen href im Link-Tag statt klassischem Link
-            let link = getTag("link");
-            if (!link) {
-                const linkEl = item.querySelector("link");
-                if (linkEl && linkEl.getAttribute("href")) link = linkEl.getAttribute("href");
-            }
-            
-            // Bei Google News ist die Quelle oft versteckt im <source> Tag
-            let sourceName = feed.name;
-            const sourceTag = item.querySelector("source");
-            if (sourceTag && sourceTag.textContent) {
-                sourceName = sourceTag.textContent.trim();
-            }
-
-            return {
-                title: getTag("title"),
-                link: link,
-                pubDate: getTag("pubDate") || getTag("updated") || getTag("published"),
-                description: getTag("description") || getTag("summary"),
-                content: (item.querySelector("content\\:encoded") ? item.querySelector("content\\:encoded").textContent : (getTag("content") || getTag("description"))),
-                // Trick: Setzen eines Standard-Types (image/jpeg), damit unsere extractImage-Funktion das Bild akzeptiert
-                enclosure: enc ? { link: enc.getAttribute("url") || enc.getAttribute("href"), type: enc.getAttribute("type") || 'image/jpeg' } : null,
-                sourceName: sourceName,
-                category: feed.category
-            };
-        });
-    }
-
     async function fetchRSS(feed) {
-        // Weg 1: rss2json (Sehr schnell für normale Feeds, scheitert aber oft bei Google News)
-        try {
-            const res = await fetchWithTimeout(`${RSS2JSON_API}${encodeURIComponent(feed.url)}`, { timeout: 4000 });
-            const data = await res.json();
-            if (data.status === 'ok' && data.items && data.items.length > 0) {
-                return data.items.map(item => ({...item, sourceName: feed.name, category: feed.category}));
-            }
-        } catch(e) { /* Leise ignorieren, weiter zu Weg 2 */ }
+        const urlToFetch = feed.url;
 
-        // Weg 2: allorigins JSON-Endpoint (Umgeht oft Blockaden bei Google News besser als "raw")
+        // Versuche zuerst rss2json
         try {
-            const res2 = await fetchWithTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`, { timeout: 5000 });
-            if (res2.ok) {
-                const data = await res2.json();
-                if (data && data.contents) {
-                    const parsedItems = parseRSSXml(data.contents, feed);
-                    if (parsedItems.length > 0) return parsedItems;
+            const res = await fetchWithTimeout(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(urlToFetch)}`, { timeout: 4000 });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    return data.items.map(item => ({...item, sourceName: feed.name, category: feed.category}));
                 }
             }
-        } catch(e) { /* Leise ignorieren, weiter zu Weg 3 */ }
+        } catch(e) {}
 
-        // Weg 3: codetabs proxy als letzter eiserner Notnagel
-        try {
-            const res3 = await fetchWithTimeout(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(feed.url)}`, { timeout: 5000 });
-            if (res3.ok) {
-                const xmlText = await res3.text();
-                const parsedItems = parseRSSXml(xmlText, feed);
-                if (parsedItems.length > 0) return parsedItems;
-            }
-        } catch(e) {
-            console.warn("Feed vorübergehend nicht erreichbar:", feed.url);
+        // Fallback auf native Proxies
+        const proxies = [
+            `https://corsproxy.io/?`,
+            `https://api.allorigins.win/raw?url=`
+        ];
+
+        for (const proxy of proxies) {
+            try {
+                const res = await fetchWithTimeout(`${proxy}${encodeURIComponent(urlToFetch)}`, { timeout: 5000 });
+                if (res.ok) {
+                    const xmlText = await res.text();
+                    const parsedItems = parseNativeXML(xmlText, feed);
+                    if (parsedItems.length > 0) return parsedItems;
+                }
+            } catch(e) {}
         }
+        return []; 
+    }
+
+    function fetchWithTimeout(resource, options = {}) {
+        const { timeout = 6000 } = options; 
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        return fetch(resource, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
+    }
+
+    function parseNativeXML(xmlText, feed) {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+        let items = [];
         
-        return []; // Garantiert, dass die App bei Fehlern nicht abstürzt, sondern einfach leer weitermacht
+        const rssItems = xmlDoc.querySelectorAll("item");
+        if (rssItems.length > 0) {
+            rssItems.forEach(node => {
+                let enc = node.querySelector("enclosure");
+                let img = enc ? enc.getAttribute("url") : null;
+                items.push({
+                    title: node.querySelector("title")?.textContent || '',
+                    link: node.querySelector("link")?.textContent || '',
+                    pubDate: node.querySelector("pubDate")?.textContent || '',
+                    description: node.querySelector("description")?.textContent || '',
+                    content: node.querySelector("content\\:encoded")?.textContent || '',
+                    enclosure: img ? { link: img, type: 'image/jpeg' } : null,
+                    sourceName: feed.name, category: feed.category
+                });
+            });
+            return items;
+        }
+
+        const atomEntries = xmlDoc.querySelectorAll("entry");
+        if (atomEntries.length > 0) {
+            atomEntries.forEach(node => {
+                items.push({
+                    title: node.querySelector("title")?.textContent || '',
+                    link: node.querySelector("link")?.getAttribute("href") || '',
+                    pubDate: node.querySelector("updated")?.textContent || '',
+                    description: node.querySelector("summary")?.textContent || node.querySelector("content")?.textContent || '',
+                    sourceName: feed.name, category: feed.category
+                });
+            });
+        }
+        return items;
     }
 
     function extractImage(article) {
@@ -666,7 +672,7 @@
         if (article.thumbnail && article.thumbnail !== '') return article.thumbnail;
         if (article.image && typeof article.image === 'string' && article.image !== '') return article.image;
         
-        // 3. Aggressive Suche im HTML-Text (Speziell für Google News Fallbacks!)
+        // 3. Aggressive Suche im HTML-Text (Speziell für Reddit und Google News Fallbacks!)
         const htmlContent = (article.content || '') + ' ' + (article.description || '');
         
         // Sucht nach <img> Tags, auch wenn sie komische Anführungszeichen haben
@@ -686,7 +692,11 @@
     function stripHtml(html) {
         let tmp = document.createElement("DIV");
         tmp.innerHTML = html || "";
-        return tmp.textContent || tmp.innerText || "";
+        // Spezielles Bereinigen für Reddit (entfernt Spam-Elemente aus dem RSS)
+        let text = (tmp.textContent || tmp.innerText || "").replace(/\s+/g, ' ').trim();
+        text = text.replace(/submitted by\s+.*?to\s+r\/.*$/i, '').trim();
+        text = text.replace(/\[link\]\s*\[comments\]/i, '').trim();
+        return text;
     }
 
     // --- NEUE DYNAMISCHE GENERIERUNG ---
@@ -1155,19 +1165,11 @@
             buildBookStructure(); // Erzeugt die leeren HTML-Seiten basierend auf Config
 
             const feeds = await getFeedsFromDB();
-            
-            // NEU: Paralleles Laden (Multi-Threading)! Lädt alle Feeds gleichzeitig statt nacheinander.
-            // Das verhindert das "unendliche Laden" und reduziert die Ladezeit der Zeitung drastisch.
-            const fetchPromises = feeds.map(feed => fetchRSS(feed));
-            const results = await Promise.allSettled(fetchPromises);
-            
             let allArticles = [];
-            results.forEach(result => {
-                // Nur erfolgreiche Abrufe in den großen Topf werfen
-                if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
-                    allArticles = allArticles.concat(result.value);
-                }
-            });
+            for (const feed of feeds) {
+                const articles = await fetchRSS(feed);
+                allArticles = allArticles.concat(articles);
+            }
             
             // CRITICAL FIX: Kugelsichere Sortierung, falls Google-News kein Datum liefert (verhindert NaN Absturz!)
             allArticles.sort((a, b) => {
@@ -1185,8 +1187,10 @@
                 // NEU: Wenn die Rubrik auf 0 Seiten steht, Artikel komplett blockieren!
                 if (pageConfig[a.category] === 0) return;
 
-                // FIX: Google News liefert oft keine langen Texte mehr. Wir akzeptieren Artikel ab sofort auch, wenn sie nur einen Titel und Link haben!
-                if (a.title && a.link && !seenTitles.has(a.title)) {
+                let hasDesc = (a.description && a.description.length > 0);
+                let hasContent = (a.content && a.content.length > 0);
+                
+                if (a.title && (hasDesc || hasContent) && !seenTitles.has(a.title)) {
                     seenTitles.add(a.title); // Titel dauerhaft als "gesehen" markieren
                     a.image = extractImage(a);
                     
@@ -1197,13 +1201,7 @@
                         useContent = true;
                     }
                     
-                    a.cleanText = stripHtml(useContent ? a.content : (a.description || ''));
-                    
-                    // Vermeide redundante Texte (Google News packt oft nur den reinen Titel doppelt in die Beschreibung)
-                    if (a.cleanText.trim() === a.title.trim()) {
-                        a.cleanText = '';
-                    }
-
+                    a.cleanText = stripHtml(useContent ? a.content : a.description);
                     valid.push(a);
                     if(byCat[a.category]) byCat[a.category].push(a);
                 }
@@ -1456,6 +1454,28 @@
     function setupEventListeners() {
         const modal = document.getElementById('settings-modal');
         
+        // Vollbild Logik
+        document.getElementById('btn-fullscreen').onclick = () => {
+            const docEl = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(e => console.log(e));
+                } else if (docEl.webkitRequestFullscreen) { /* Safari */
+                    docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) { /* IE11 */
+                    docEl.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+            }
+        };
+
         // NEU: Blättern durch Tippen/Klicken auf die Bildschirmhälften (für Touch-Geräte)
         document.getElementById('book').addEventListener('click', (e) => {
             // Interaktive Elemente (Links, Buttons, Teaser) vom Blättern ausschließen
@@ -1533,47 +1553,75 @@
                 let testArticles = [];
                 let smartModeUsed = false;
                 
-                // PRÜFUNG: Ist es ein Schlagwort oder eine URL? (Schlagwort: hat Leerzeichen oder keinen Punkt)
-                const isKeyword = !inputUrlOrKeyword.includes('.') || inputUrlOrKeyword.includes(' ');
+                // SOCIAL MEDIA AUTO-KONVERTIERUNG
+                if (inputUrlOrKeyword.includes('reddit.com/r/') && !inputUrlOrKeyword.includes('.rss')) {
+                    // Reddit in RSS umwandeln
+                    inputUrlOrKeyword = inputUrlOrKeyword.replace(/\/$/, '') + '/.rss';
+                    finalUrl = inputUrlOrKeyword;
+                    smartModeUsed = true;
+                } else if (inputUrlOrKeyword.includes('youtube.com/@')) {
+                    // YouTube Handle in Channel ID auflösen (benötigt Fetch um die Channel ID zu finden)
+                    btn.innerHTML = '<i class="fa-solid fa-magnifying-glass fa-beat mr-1"></i> YouTube Scan...';
+                    try {
+                        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(inputUrlOrKeyword)}`);
+                        const data = await res.json();
+                        // Suche nach der channelId im HTML der Seite
+                        const match = data.contents.match(/itemprop="channelId"\s+content="([^"]+)"/) || data.contents.match(/"channelId":"([^"]+)"/);
+                        if (match && match[1]) {
+                            finalUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${match[1]}`;
+                            smartModeUsed = true;
+                        }
+                    } catch(e) {
+                        console.error("Fehler beim YouTube Handle Auflösen", e);
+                    }
+                } else if (inputUrlOrKeyword.includes('youtube.com/channel/')) {
+                    // YouTube Channel URL in RSS umwandeln
+                    const channelId = inputUrlOrKeyword.split('youtube.com/channel/')[1].split('/')[0];
+                    finalUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+                    smartModeUsed = true;
+                }
 
-                if (isKeyword) {
+                // PRÜFUNG: Ist es ein Schlagwort oder eine URL? (Schlagwort: hat Leerzeichen oder keinen Punkt)
+                const isKeyword = !finalUrl.includes('.') || finalUrl.includes(' ');
+
+                if (isKeyword && !smartModeUsed) {
                     // 1. SCHLAGWORT-SUCHE (Keywords)
-                    finalUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(inputUrlOrKeyword)}&hl=de&gl=DE&ceid=DE:de`;
+                    finalUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(finalUrl)}&hl=de&gl=DE&ceid=DE:de`;
                     smartModeUsed = true;
                     console.log("Nutze Keyword-Modus für:", inputUrlOrKeyword);
                     testArticles = await fetchRSS({ name, url: finalUrl, category });
                 } else {
                     // 2. URL-MODUS (Webseiten)
-                    if (!inputUrlOrKeyword.startsWith('http')) {
-                        inputUrlOrKeyword = 'https://' + inputUrlOrKeyword;
+                    if (!finalUrl.startsWith('http')) {
+                        finalUrl = 'https://' + finalUrl;
                     }
                     
                     // Versuch 2a: Ist es vielleicht schon ein echter RSS Feed?
                     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Teste URL...';
-                    testArticles = await fetchRSS({ name, url: inputUrlOrKeyword, category });
+                    testArticles = await fetchRSS({ name, url: finalUrl, category });
 
                     // Versuch 2b: Standard RSS-Pfade prüfen (z.B. versteckte WordPress Feeds unter /feed/)
                     if (!testArticles || testArticles.length === 0) {
-                        const hasFeedIndicator = inputUrlOrKeyword.includes('.rss') || inputUrlOrKeyword.includes('.xml') || inputUrlOrKeyword.endsWith('feed') || inputUrlOrKeyword.endsWith('feed/');
+                        const hasFeedIndicator = finalUrl.includes('.rss') || finalUrl.includes('.xml') || finalUrl.endsWith('feed') || finalUrl.endsWith('feed/');
                         
                         if (!hasFeedIndicator) {
                             btn.innerHTML = '<i class="fa-solid fa-magnifying-glass fa-beat mr-1"></i> Suche Feed-Pfad...';
-                            const feedUrl = inputUrlOrKeyword.endsWith('/') ? inputUrlOrKeyword + 'feed/' : inputUrlOrKeyword + '/feed/';
+                            const feedUrl = finalUrl.endsWith('/') ? finalUrl + 'feed/' : finalUrl + '/feed/';
                             const altTest = await fetchRSS({ name, url: feedUrl, category });
                             
                             if (altTest && altTest.length > 0) {
                                 testArticles = altTest;
-                                inputUrlOrKeyword = feedUrl; // Gefundenen nativen Pfad übernehmen!
+                                finalUrl = feedUrl; // Gefundenen nativen Pfad übernehmen!
                                 console.log("Versteckten Standard-Feed gefunden:", feedUrl);
                             }
                         }
                     }
 
                     // Versuch 2c (SMART-MODUS): Wenn alle Stricke reißen, Google News Fallback nutzen!
-                    if (!testArticles || testArticles.length === 0) {
+                    if ((!testArticles || testArticles.length === 0) && !smartModeUsed) {
                         try {
                             btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-bounce mr-1"></i> Smart-Modus...';
-                            const domain = new URL(inputUrlOrKeyword).hostname.replace('www.', '');
+                            const domain = new URL(finalUrl).hostname.replace('www.', '');
                             finalUrl = `https://news.google.com/rss/search?q=site:${domain}&hl=de&gl=DE&ceid=DE:de`;
                             smartModeUsed = true;
                             console.log("Nutze Smart-Modus für Domain:", domain);
@@ -1581,8 +1629,6 @@
                         } catch(e) {
                             console.error("Smart Convert Fehler", e);
                         }
-                    } else {
-                        finalUrl = inputUrlOrKeyword;
                     }
                 }
 
@@ -1607,7 +1653,7 @@
                     if (smartModeUsed && (!testArticles || testArticles.length === 0)) {
                         btn.innerHTML = '<i class="fa-solid fa-check"></i> Gespeichert (ohne Test)';
                     } else if (smartModeUsed) {
-                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Smart-Feed erstellt!';
+                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Feed erstellt!';
                     } else {
                         btn.innerHTML = '<i class="fa-solid fa-check"></i> Hinzugefügt';
                     }
