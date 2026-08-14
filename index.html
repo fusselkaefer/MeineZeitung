@@ -39,7 +39,22 @@
             width: 100%;
             max-width: 1800px;
             height: 95vh;
+            transition: all 0.3s ease;
         }
+
+        /* Vollbild-Anpassungen */
+        :fullscreen body { padding: 0; background-color: #d1d5db; display: flex; align-items: center; justify-content: center; }
+        :fullscreen #app-container { height: 100vh; max-width: 100vw; gap: 0; padding: 20px; box-sizing: border-box; justify-content: center; }
+        :fullscreen .controls-topbar { display: none; } /* Topbar im Vollbild ausblenden für maximales Leseerlebnis */
+        :fullscreen #reading-zone { height: 100%; display: flex; align-items: center; }
+        :fullscreen .book-wrapper { max-height: 95vh; width: 95%; margin: auto; }
+
+        /* Fallbacks für verschiedene Browser */
+        :-webkit-full-screen body { padding: 0; background-color: #d1d5db; display: flex; align-items: center; justify-content: center; }
+        :-webkit-full-screen #app-container { height: 100vh; max-width: 100vw; gap: 0; padding: 20px; box-sizing: border-box; justify-content: center; }
+        :-webkit-full-screen .controls-topbar { display: none; }
+        :-webkit-full-screen #reading-zone { height: 100%; display: flex; align-items: center; }
+        :-webkit-full-screen .book-wrapper { max-height: 95vh; width: 95%; margin: auto; }
 
         .book-wrapper {
             flex-grow: 1;
@@ -62,6 +77,7 @@
             display: flex;
             flex-direction: column;
             
+            /* NEU: Echter 3D Blätter-Effekt ohne Opacity-Fade */
             transform-origin: 0% 50%; /* Scharnier links */
             transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
             pointer-events: auto;
@@ -69,6 +85,7 @@
             
             overflow-y: auto;
             overflow-x: hidden;
+            /* CRITICAL FIX: Damit cqw (Container Width) anstelle von vw funktioniert! */
             container-type: inline-size; 
         }
 
@@ -77,8 +94,9 @@
         .page::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .page::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+        /* Klasse für umgeblätterte Seiten */
         .page.turned {
-            transform: rotateY(-180deg); /* Klappt komplett nach links um */
+            transform: rotateY(-180deg); /* Klappt komplett nach links um (verborgen durch backface-visibility) */
             pointer-events: none;
         }
 
@@ -107,7 +125,9 @@
             display: grid;
         }
 
+        /* 3-Spalten Grid */
         .grid-3-cols { grid-template-columns: 1fr 2.2fr 1fr; column-gap: 3%; }
+        /* 2-Spalten Grid */
         .grid-2-cols { grid-template-columns: 1fr 1fr; column-gap: 4%; }
         
         .news-column { display: flex; flex-direction: column; gap: 20px; }
@@ -125,6 +145,7 @@
         .compact-headline { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5cqw; line-height: 1.1; margin: 0 0 5px 0; }
         .secondary-headline { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 2.2cqw; line-height: 1.1; margin: 0 0 8px 0; }
         
+        /* Hervorgehobene Quellenangabe */
         .article-author { 
             font-family: 'Oswald', sans-serif; font-size: 0.8cqw; text-transform: uppercase; 
             border-top: 2px solid #ddd; border-bottom: 2px solid #ddd; 
@@ -133,6 +154,8 @@
         }
         
         .article-text { font-size: 0.95cqw; line-height: 1.6; text-align: justify; color: #1a1a1a; margin-bottom: 20px; }
+        
+        /* Überschriften zwingen, lange Wörter umzubrechen */
         h2, h3, h4, .logo-text { overflow-wrap: break-word; word-wrap: break-word; hyphens: auto; }
         .theme-boulevard h2, .theme-boulevard h3 { hyphens: auto; }
 
@@ -164,28 +187,83 @@
         
         .category-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; color: white; margin-left: 5px; }
         
+        /* Toggle Switch Styles */
         .theme-toggle-container {
-            display: flex; align-items: center; background-color: #e5e7eb;
-            border-radius: 9999px; padding: 4px; cursor: pointer; position: relative; width: 200px; height: 36px;
+            display: flex;
+            align-items: center;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            padding: 4px;
+            cursor: pointer;
+            position: relative;
+            width: 200px;
+            height: 36px;
         }
-        .theme-toggle-option { flex: 1; text-align: center; font-size: 0.8rem; font-weight: 600; z-index: 10; transition: color 0.3s; color: #6b7280; }
-        .theme-toggle-option.active { color: #111827; }
-        .theme-toggle-slider {
-            position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: 28px; background-color: white; border-radius: 9999px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 5;
-        }
-        body.theme-boulevard .theme-toggle-slider { transform: translateX(100%); }
-
-        body.theme-boulevard { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #e5e7eb; }
-        .theme-boulevard .page { padding: 1.5% 2%; }
         
-        .box-decoration-clone { -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+        .theme-toggle-option {
+            flex: 1;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 10;
+            transition: color 0.3s;
+            color: #6b7280;
+        }
+        
+        .theme-toggle-option.active {
+            color: #111827;
+        }
+        
+        .theme-toggle-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            height: 28px;
+            background-color: white;
+            border-radius: 9999px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+        }
+        
+        body.theme-boulevard .theme-toggle-slider {
+            transform: translateX(100%);
+        }
+
+        /* NEU: Boulevard (BILD) Theme - Print Optik */
+        body.theme-boulevard { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #e5e7eb; }
+        .theme-boulevard .page { padding: 1.5% 2%; } /* Engere Ränder für Boulevard */
+        
+        /* Hilfsklasse für den gelben Textmarker-Effekt über Zeilenumbrüche hinweg */
+        .box-decoration-clone {
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
+        }
 
         .theme-boulevard .newspaper-header { border-bottom: 6px solid #e3000f; }
-        .theme-boulevard .logo-text { font-family: 'Oswald', sans-serif !important; background-color: #e3000f; color: white !important; padding: 5px 25px; font-size: 7.5cqw !important; font-weight: 900; letter-spacing: -2px !important; border-radius: 2px; }
+        .theme-boulevard .logo-text { 
+            font-family: 'Oswald', sans-serif !important; 
+            background-color: #e3000f; 
+            color: white !important; 
+            padding: 5px 25px; 
+            font-size: 7.5cqw !important; 
+            font-weight: 900;
+            letter-spacing: -2px !important;
+            border-radius: 2px;
+        }
         .theme-boulevard .lead-headline { font-family: 'Oswald', sans-serif; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; font-size: 3.8cqw; line-height: 1; }
         .theme-boulevard .secondary-headline { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 2.5cqw; line-height: 1.05; }
         .theme-boulevard .compact-headline { font-family: 'Oswald', sans-serif; font-weight: 700; line-height: 1.1; }
-        .theme-boulevard .article-kicker { background-color: #e3000f !important; color: white !important; display: inline-block; padding: 3px 8px; margin-bottom: 6px; font-size: 1cqw; border-radius: 2px; }
+        .theme-boulevard .article-kicker { 
+            background-color: #e3000f !important; 
+            color: white !important; 
+            display: inline-block; 
+            padding: 3px 8px; 
+            margin-bottom: 6px;
+            font-size: 1cqw;
+            border-radius: 2px;
+        }
         .theme-boulevard .section-header { background-color: #e3000f; }
         .theme-boulevard .header-date-bar { border-top-color: #e3000f; border-bottom-color: #e3000f; color: #e3000f; }
     </style>
@@ -200,12 +278,16 @@
             <div id="page-indicator" class="text-sm font-bold bg-gray-200 px-3 py-1 rounded-full text-gray-700">Seite 1 / 1</div>
         </div>
         <div class="flex items-center gap-4">
+            <!-- NEU: Theme Toggle Switch -->
             <div class="theme-toggle-container" id="theme-toggle">
                 <div class="theme-toggle-slider"></div>
                 <div class="theme-toggle-option active" id="toggle-opt-classic">KLASSISCH</div>
                 <div class="theme-toggle-option" id="toggle-opt-boulevard">BOULEVARD</div>
             </div>
             
+            <button id="btn-fullscreen" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-3 rounded text-sm transition font-bold shadow-sm" title="Vollbild Modus">
+                <i class="fa-solid fa-expand"></i><span class="hidden lg:inline ml-1">Vollbild</span>
+            </button>
             <button id="btn-open-settings" class="bg-gray-800 hover:bg-gray-900 text-white py-2 px-4 rounded text-sm transition">
                 <i class="fa-solid fa-gear mr-1"></i> Einstellungen
             </button>
@@ -215,7 +297,7 @@
         </div>
     </div>
 
-    <div class="relative w-full">
+    <div class="relative w-full" id="reading-zone">
         <button id="nav-prev" class="page-nav" onclick="prevPage()"><i class="fa-solid fa-chevron-left"></i></button>
         <button id="nav-next" class="page-nav" onclick="nextPage()"><i class="fa-solid fa-chevron-right"></i></button>
         
@@ -235,7 +317,9 @@
         
         <div class="flex flex-col gap-6">
             
+            <!-- OBERE REIHE: Struktur & Seiten -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <!-- Name -->
                 <div class="col-span-1 md:border-r border-gray-200 md:pr-4">
                     <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider"><i class="fa-solid fa-palette text-blue-500 mr-1"></i> Allgemein</h3>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Name der Zeitung</label>
@@ -243,6 +327,7 @@
                     <p class="text-[11px] text-gray-500 leading-tight">Den Layout-Stil (Klassisch / Boulevard) wechseln Sie direkt im Schalter oben im Hauptmenü.</p>
                 </div>
                 
+                <!-- Seiten config -->
                 <div class="col-span-2 flex flex-col h-full">
                     <h3 class="text-sm font-bold text-gray-700 mb-1 uppercase tracking-wider"><i class="fa-solid fa-layer-group text-blue-500 mr-1"></i> Seiten pro Ressort (Heftstruktur)</h3>
                     <p class="text-[11px] text-gray-500 mb-3 leading-tight"><i class="fa-solid fa-up-down text-blue-500 mr-1"></i> <b>Drag & Drop:</b> Ziehen Sie die Boxen, um die Reihenfolge der Seiten in der Zeitung zu ändern. Eine "0" blendet die Rubrik aus.</p>
@@ -252,18 +337,25 @@
                 </div>
             </div>
 
+            <!-- UNTERE REIHE: Feeds -->
             <div>
                 <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider"><i class="fa-solid fa-rss text-blue-500 mr-1"></i> Nachrichtenquellen & Feeds</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     
+                    <!-- Links: Hinzufügen -->
                     <div class="col-span-1 flex flex-col gap-4">
                         <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm relative overflow-hidden">
+                            <!-- Zauberstab Deko -->
                             <div class="absolute -right-4 -top-4 opacity-10 text-6xl text-purple-500 pointer-events-none"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                            <h4 class="text-sm font-bold text-gray-800 mb-3 relative z-10">Eigene Quelle anbinden</h4>
-                            <input type="text" id="new-feed-name" placeholder="Name (z.B. Spiegel)" class="w-full p-2 text-sm border border-gray-300 rounded mb-2 focus:ring-1 focus:ring-blue-500 relative z-10">
-                            <input type="text" id="new-feed-url" placeholder="Adresse (z.B. spiegel.de) ODER Thema (z.B. KI)" class="w-full p-2 text-sm border border-gray-300 rounded mb-1 focus:ring-1 focus:ring-blue-500 relative z-10">
                             
-                            <p class="text-[10px] text-gray-500 mb-3 leading-tight relative z-10"><i class="fa-solid fa-wand-magic-sparkles text-purple-500 mr-1"></i><b>Smart-Modus:</b> Geben Sie eine URL oder ein Such-Schlagwort ein! Das System nutzt nun ein intelligentes Bing/Google-Fallback für maximale Stabilität.</p>
+                            <h4 class="text-sm font-bold text-gray-800 mb-3 relative z-10">Eigene Quelle / Social anbinden</h4>
+                            <input type="text" id="new-feed-name" placeholder="Name (z.B. Spiegel, r/de, RocketBeans)" class="w-full p-2 text-sm border border-gray-300 rounded mb-2 focus:ring-1 focus:ring-blue-500 relative z-10">
+                            <input type="text" id="new-feed-url" placeholder="Adresse (z.B. reddit.com/r/de) ODER Thema" class="w-full p-2 text-sm border border-gray-300 rounded mb-1 focus:ring-1 focus:ring-blue-500 relative z-10">
+                            
+                            <!-- NEU: YouTube und Reddit Hinweise -->
+                            <p class="text-[10px] text-gray-500 mb-3 leading-tight relative z-10">
+                                <i class="fa-solid fa-wand-magic-sparkles text-purple-500 mr-1"></i><b>Smart-Modus:</b> Unterstützt Webseiten, Themen-Schlagwörter, <b>YouTube-Kanäle</b> und <b>Reddit-Foren</b> automatisch! (Instagram/X via ext. Link)
+                            </p>
 
                             <input type="text" id="new-feed-category" list="category-list" placeholder="Rubrik (z.B. Politik)" class="w-full p-2 text-sm border border-gray-300 rounded mb-4 focus:ring-1 focus:ring-blue-500 relative z-10">
                             <datalist id="category-list"></datalist>
@@ -272,16 +364,22 @@
                         
                         <div class="border border-gray-200 rounded-lg bg-gray-50 flex flex-col h-[280px]">
                             <h4 class="text-[11px] font-bold text-gray-700 p-3 pb-2 uppercase tracking-wide border-b border-gray-200 bg-gray-100 rounded-t-lg"><i class="fa-solid fa-book-open mr-1 text-blue-500"></i> Feed-Katalog durchsuchen:</h4>
-                            <div class="overflow-y-auto p-3 flex-grow" id="suggested-feeds-container"></div>
+                            <div class="overflow-y-auto p-3 flex-grow" id="suggested-feeds-container">
+                                <!-- JS Füllung des Katalogs -->
+                            </div>
                         </div>
                     </div>
                     
+                    <!-- Rechts: Liste -->
                     <div class="col-span-2">
-                        <ul id="modal-feed-list" class="divide-y divide-gray-100 border border-gray-200 rounded-lg h-[550px] overflow-y-auto bg-white shadow-inner"></ul>
+                        <ul id="modal-feed-list" class="divide-y divide-gray-100 border border-gray-200 rounded-lg h-[550px] overflow-y-auto bg-white shadow-inner">
+                            <!-- JS Füllung -->
+                        </ul>
                     </div>
                 </div>
             </div>
             
+            <!-- NEU: Backup & Export -->
             <div class="mt-2 bg-blue-50 p-4 rounded-lg border border-blue-100 flex justify-between items-center shadow-sm">
                 <div>
                     <h4 class="text-sm font-bold text-blue-900"><i class="fa-solid fa-floppy-disk mr-1"></i> Backup & Umzug</h4>
@@ -306,10 +404,11 @@
 
 <script>
     let currentPage = 1;
-    let totalPages = 1;
+    let totalPages = 1; // Wird nun dynamisch berechnet
 
     let PAGE_CATEGORIES = JSON.parse(localStorage.getItem('newspaper_custom_categories')) || ['Politik', 'Wirtschaft', 'Sport', 'Kultur', 'Technik', 'Wissenschaft', 'Gesundheit', 'Lokales', 'Unterhaltung', 'Reisen', 'Vermischtes'];
     
+    // Alte Einstellungen sichern und mit neuen Rubriken zusammenführen
     let savedConfig = JSON.parse(localStorage.getItem('newspaper_page_config')) || {};
     let pageConfig = {};
     PAGE_CATEGORIES.forEach(cat => {
@@ -321,11 +420,14 @@
             const page = document.getElementById(`page-${i}`);
             if (!page) continue;
             
+            // Statische Z-Indizes sorgen dafür, dass beim Drehen die Ebene erhalten bleibt
             page.style.zIndex = totalPages - i + 10; 
             
             if (i < currentPage) {
+                // Vorherige Seiten klappen um 180 Grad nach links
                 page.classList.add('turned');
             } else {
+                // Aktuelle und Folgeseiten liegen flach
                 page.classList.remove('turned');
             }
         }
@@ -349,12 +451,14 @@
 
     function getCategoryColor(cat) {
         if (CATEGORIES[cat]) return CATEGORIES[cat];
+        // Generiert eine eigene, deterministische Farbe für neue Rubriken
         let hash = 0;
         for (let i = 0; i < cat.length; i++) hash = cat.charCodeAt(i) + ((hash << 5) - hash);
         const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
         return '#' + '00000'.substring(0, 6 - c.length) + c;
     }
 
+    // NEU: Lade Name und Theme aus dem Speicher
     let newspaperName = localStorage.getItem('newspaper_name') || 'DIE NEWS';
     let newspaperTheme = localStorage.getItem('newspaper_theme') || 'classic';
 
@@ -388,6 +492,7 @@
         { id: 'v2', name: 'Stern', url: 'https://www.stern.de/feed/standard/alle-nachrichten/', category: 'Vermischtes' }
     ];
 
+    // UMFANGREICHER FEED-KATALOG (Nach Themen sortiert - Streng auf Zuverlässigkeit geprüft)
     const FEED_CATALOG = {
         'Politik & News': [
             { name: 'Zeit Online', url: 'https://newsfeed.zeit.de/all', category: 'Politik' },
@@ -433,6 +538,7 @@
         ]
     };
 
+    // V5 zwingt die App, die neuen erweiterten Standard-Feeds in die IndexedDB zu laden
     const dbName = "NewspaperBuilderDB_V5";
     const storeName = "rssFeeds";
     let db;
@@ -474,6 +580,39 @@
         return new Promise((resolve) => {
             db.transaction([storeName], "readwrite").objectStore(storeName).delete(id).onsuccess = () => resolve();
         });
+    }
+
+    async function fetchRSS(feed) {
+        const urlToFetch = feed.url;
+
+        // Versuche zuerst rss2json
+        try {
+            const res = await fetchWithTimeout(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(urlToFetch)}`, { timeout: 4000 });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    return data.items.map(item => ({...item, sourceName: feed.name, category: feed.category}));
+                }
+            }
+        } catch(e) {}
+
+        // Fallback auf native Proxies
+        const proxies = [
+            `https://corsproxy.io/?`,
+            `https://api.allorigins.win/raw?url=`
+        ];
+
+        for (const proxy of proxies) {
+            try {
+                const res = await fetchWithTimeout(`${proxy}${encodeURIComponent(urlToFetch)}`, { timeout: 5000 });
+                if (res.ok) {
+                    const xmlText = await res.text();
+                    const parsedItems = parseNativeXML(xmlText, feed);
+                    if (parsedItems.length > 0) return parsedItems;
+                }
+            } catch(e) {}
+        }
+        return []; 
     }
 
     function fetchWithTimeout(resource, options = {}) {
@@ -521,95 +660,52 @@
         return items;
     }
 
-    async function attemptFetch(urlToFetch, feed) {
-        try {
-            const res = await fetchWithTimeout(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(urlToFetch)}`, { timeout: 4000 });
-            if (res.ok) {
-                const data = await res.json();
-                if (data.status === 'ok' && data.items && data.items.length > 0) {
-                    return data.items.map(item => ({...item, sourceName: feed.name, category: feed.category}));
-                }
-            }
-        } catch(e) {}
-
-        const proxies = [
-            `https://corsproxy.io/?`,
-            `https://api.allorigins.win/raw?url=`
-        ];
-
-        for (const proxy of proxies) {
-            try {
-                const res = await fetchWithTimeout(`${proxy}${encodeURIComponent(urlToFetch)}`, { timeout: 5000 });
-                if (res.ok) {
-                    const xmlText = await res.text();
-                    const parsedItems = parseNativeXML(xmlText, feed);
-                    if (parsedItems.length > 0) return parsedItems;
-                }
-            } catch(e) {}
-        }
-        return []; 
-    }
-
-    async function fetchRSS(feed) {
-        let urlsToTry = [feed.url];
-        
-        // DAS HERZSTÜCK DER STABILITÄT: Dynamischer Bing <-> Google Fallback
-        try {
-            if (feed.url.includes('news.google.com/rss/search') || feed.url.includes('bing.com/news/search')) {
-                const urlObj = new URL(feed.url);
-                const query = urlObj.searchParams.get('q');
-                if (query) {
-                    const bingUrl = `https://www.bing.com/news/search?q=${query}&format=rss&cc=de&setlang=de`;
-                    const googleUrl = `https://news.google.com/rss/search?q=${query}&hl=de&gl=DE&ceid=DE:de`;
-                    // Wenn Bing im System gespeichert war, probiere Bing zuerst, dann Google (und umgekehrt)
-                    urlsToTry = feed.url.includes('bing.com') ? [bingUrl, googleUrl] : [googleUrl, bingUrl];
-                }
-            }
-        } catch(e) {}
-
-        for (const targetUrl of urlsToTry) {
-            let items = await attemptFetch(targetUrl, feed);
-            if (items && items.length > 0) {
-                return items; // Bei Erfolg sofort abbrechen und Daten nutzen
-            }
-        }
-        console.warn("Feed-Blockade bei:", feed.url);
-        return []; 
-    }
-
     function extractImage(article) {
         if (!article) return null;
         
+        // 1. Standard RSS Enclosure (z.B. Tagesschau, Kicker, Spiegel)
         if (article.enclosure && article.enclosure.link && String(article.enclosure.type).startsWith('image/')) {
             return article.enclosure.link;
         }
         
+        // 2. Von rss2json direkt erkannte Thumbnails oder Bilder
         if (article.thumbnail && article.thumbnail !== '') return article.thumbnail;
         if (article.image && typeof article.image === 'string' && article.image !== '') return article.image;
         
+        // 3. Aggressive Suche im HTML-Text (Speziell für Reddit und Google News Fallbacks!)
         const htmlContent = (article.content || '') + ' ' + (article.description || '');
+        
+        // Sucht nach <img> Tags, auch wenn sie komische Anführungszeichen haben
         const match = htmlContent.match(/<img[^>]+src\s*=\s*(["'])(.*?)\1/i);
         if (match && match[2]) {
             let imgUrl = match[2];
+            // Fix für relative Google News URLs (die mit "//" starten)
             if (imgUrl.startsWith('//')) {
                 imgUrl = 'https:' + imgUrl;
             }
             return imgUrl;
         }
+        
         return null;
     }
 
     function stripHtml(html) {
         let tmp = document.createElement("DIV");
         tmp.innerHTML = html || "";
-        return tmp.textContent || tmp.innerText || "";
+        // Spezielles Bereinigen für Reddit (entfernt Spam-Elemente aus dem RSS)
+        let text = (tmp.textContent || tmp.innerText || "").replace(/\s+/g, ' ').trim();
+        text = text.replace(/submitted by\s+.*?to\s+r\/.*$/i, '').trim();
+        text = text.replace(/\[link\]\s*\[comments\]/i, '').trim();
+        return text;
     }
 
+    // --- NEUE DYNAMISCHE GENERIERUNG ---
     function renderPageSettings() {
         const container = document.getElementById('page-config-container');
         if(!container) return;
         container.innerHTML = '';
         
+        // Datalist für das Input-Feld aktualisieren
         const datalist = document.getElementById('category-list');
         if (datalist) {
             datalist.innerHTML = '';
@@ -641,6 +737,7 @@
             });
         });
 
+        // DRAG & DROP LOGIK FÜR SORTIERUNG
         let draggedItem = null;
         document.querySelectorAll('.category-config-item').forEach(item => {
             item.addEventListener('dragstart', function(e) {
@@ -656,7 +753,7 @@
             });
 
             item.addEventListener('dragover', function(e) {
-                e.preventDefault();
+                e.preventDefault(); // Erlaubt das Ablegen
             });
 
             item.addEventListener('dragenter', function(e) {
@@ -697,7 +794,7 @@
         });
         PAGE_CATEGORIES = newOrder;
         localStorage.setItem('newspaper_custom_categories', JSON.stringify(PAGE_CATEGORIES));
-        renderModalLists();
+        renderModalLists(); // Aktualisiert die Dropdowns in der Feed-Liste
     }
 
     window.removeCategory = function(cat) {
@@ -713,13 +810,17 @@
 
     function generateTitlePageHTML() {
         if (newspaperTheme === 'boulevard') {
+            // EIGENE LAYOUT-LOGIK FÜR BOULEVARD TITELSEITE
             return `
                 <div class="page theme-boulevard-page flex flex-col" id="page-1">
+                    <!-- Top Teaser Leiste -->
                     <div class="border-b-[4px] border-black pb-2 mb-3 grid grid-cols-4 gap-4">
                         <article class="article-slot col-span-2 col-border-right pr-4 min-w-0" data-type="blvd-top-teaser" data-need-image="false"></article>
                         <article class="article-slot col-span-2 min-w-0" data-type="blvd-top-teaser" data-need-image="true"></article>
                     </div>
+                    <!-- Hauptbereich: Links Logo & Kurznews, Rechts Riesen-Aufmacher -->
                     <div class="flex flex-grow gap-4 min-h-0">
+                        <!-- Linke Spalte (Logo & Kurz) -->
                         <div class="w-1/4 border-r-[3px] border-black pr-4 flex flex-col min-w-0">
                             <div class="bg-[#e3000f] text-white text-center font-['Oswald'] font-black text-[7cqw] leading-[0.8] tracking-tighter py-3 mb-1 uppercase">${newspaperName}</div>
                             <div class="text-[0.6cqw] font-bold border-b-[2px] border-black pb-1 mb-3 text-center uppercase tracking-widest text-gray-800">
@@ -729,6 +830,7 @@
                             <article class="article-slot border-b border-gray-400 pb-3 mb-3 flex-grow min-w-0" data-type="blvd-sidebar"></article>
                             <article class="article-slot flex-grow min-w-0" data-type="blvd-sidebar"></article>
                         </div>
+                        <!-- Rechte Hauptspalte -->
                         <div class="w-3/4 flex flex-col min-w-0">
                             <article class="article-slot border-b-[3px] border-black pb-4 mb-4 min-w-0" data-type="blvd-lead" data-need-image="true"></article>
                             <div class="grid grid-cols-2 gap-4 flex-grow min-w-0">
@@ -741,6 +843,7 @@
             `;
         }
 
+        // KLASSISCHES LAYOUT
         return `
             <div class="page" id="page-1">
                 <header class="newspaper-header">
@@ -783,6 +886,7 @@
 
     function generateCategoryPageHTML(pageNum, category) {
         if (newspaperTheme === 'boulevard') {
+            // EIGENE LAYOUT-LOGIK FÜR BOULEVARD INNENSEITEN
             return `
                 <div class="page theme-boulevard-page flex flex-col" id="page-${pageNum}" data-category="${category}">
                     <div class="flex justify-between items-end mb-4 border-b-[5px] border-[#e3000f] pb-1">
@@ -806,6 +910,7 @@
             `;
         }
 
+        // KLASSISCHES LAYOUT
         return `
             <div class="page" id="page-${pageNum}" data-category="${category}">
                 <div class="flex justify-between items-stretch mb-4 border-b-[3px] border-[#1a1a1a] pb-2">
@@ -849,6 +954,7 @@
         updatePageVisibility();
     }
 
+    // NEUE FUNKTION: Scraping der Original-Bilder im Hintergrund (OpenGraph)
     async function loadMissingImages() {
         const placeholders = document.querySelectorAll('.async-og-image');
         for (const ph of placeholders) {
@@ -858,11 +964,14 @@
                 continue;
             }
 
+            // Parallel ausführen, damit es nicht blockiert
             (async () => {
                 try {
+                    // Timeout von 6 Sekunden einbauen
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 6000);
                     
+                    // Wir nutzen einen sicheren CORS-Proxy, um die Zielseite auszulesen
                     const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: controller.signal });
                     clearTimeout(timeoutId);
                     
@@ -871,27 +980,33 @@
                     
                     let imgUrl = null;
                     if(data && data.contents) {
+                        // Suchen nach dem og:image Tag (WhatsApp/Facebook Vorschau-Bild)
                         const match = data.contents.match(/<meta[^>]*property=['"]og:image['"][^>]*content=['"]([^'"]+)['"]/i) || 
                                       data.contents.match(/<meta[^>]*content=['"]([^'"]+)['"][^>]*property=['"]og:image['"]/i);
                         if (match && match[1]) imgUrl = match[1];
                     }
                     
                     if (imgUrl) {
+                        // Bild wurde gefunden: Platzhalter-Inhalt durch das echte Bild ersetzen
                         ph.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover" style="filter: grayscale(10%) contrast(1.1);">`;
                         ph.classList.remove('async-og-image');
                     } else {
                         throw new Error("Kein Bild auf der Zielseite gefunden");
                     }
                 } catch (e) {
+                    // FALLBACK: Wenn kein echtes Bild gefunden wurde oder die Seite blockiert,
+                    // löschen wir den Platzhalter einfach komplett! Der Text rutscht elegant nach oben.
                     ph.remove();
                 }
             })();
         }
     }
 
+    // UPDATE: needImg Parameter hinzugefügt, um Lade-Platzhalter zu generieren
     function createArticleHTML(article, type, needImg = false) {
         if (!article) return '';
         
+        // --- BOULEVARD (BILD) RENDERING LOGIK ---
         if (type.startsWith('blvd-')) {
             let textContent = article.cleanText;
             if (article.link && article.cleanText.length < 1500) {
@@ -900,6 +1015,7 @@
             
             const sourceTag = `<span class="font-black text-[#e3000f] uppercase mr-1">${article.sourceName}</span>`;
 
+            // Riesen-Aufmacher (Titelseite & Innenseite)
             if (type === 'blvd-lead' || type === 'blvd-lead-inside') {
                 const words = article.title.split(' ');
                 let hlTitle = article.title;
@@ -910,6 +1026,7 @@
                     hlTitle = `${firstPart} <span class="bg-[#ffed00] px-1 text-black shadow-[4px_0_0_#ffed00,-4px_0_0_#ffed00] box-decoration-clone leading-[1.3]">${lastPart}</span>`;
                 }
 
+                // NEU: Platzhalter Logik
                 let imgHTML = '';
                 if (article.image) {
                     imgHTML = `<img src="${article.image}" class="w-full h-auto max-h-[35vh] object-cover mt-2 mb-3 border-[2px] border-black">`;
@@ -932,6 +1049,7 @@
                 `;
             }
             
+            // Kopf-Teaser (Ganz oben auf Titelseite)
             if (type === 'blvd-top-teaser') {
                 let imgHTML = '';
                 if (article.image) {
@@ -951,6 +1069,7 @@
                 `;
             }
 
+            // Seiten-Spalte (Links auf Titel, Rechts auf Innenseiten)
             if (type === 'blvd-sidebar' || type === 'blvd-sidebar-img') {
                  let imgHTML = '';
                  if (article.image && type === 'blvd-sidebar-img') {
@@ -970,6 +1089,7 @@
                  `;
             }
 
+            // Sekundäre Aufmacher (Unten rechts auf Titelseite)
             if (type === 'blvd-secondary') {
                  let imgHTML = '';
                  if (article.image) {
@@ -990,6 +1110,7 @@
                  `;
             }
 
+            // Kompakte Meldungen
             if (type === 'blvd-compact') {
                 return `
                     <div class="flex flex-col h-full">
@@ -1002,6 +1123,7 @@
             }
         }
         
+        // --- KLASSISCHES RENDERING ---
         const isLead = type === 'lead';
         const isSecondary = type === 'secondary';
         const headlineClass = isLead ? 'lead-headline text-[3.2vw] leading-tight' : (isSecondary ? 'secondary-headline text-[2.2vw]' : 'compact-headline text-[1.4vw]');
@@ -1040,19 +1162,16 @@
         btn.disabled = true;
 
         try {
-            buildBookStructure();
+            buildBookStructure(); // Erzeugt die leeren HTML-Seiten basierend auf Config
 
             const feeds = await getFeedsFromDB();
-            
-            // Paralleles Laden für drastische Leistungssteigerung
-            const fetchPromises = feeds.map(feed => fetchRSS(feed));
-            const results = await Promise.allSettled(fetchPromises);
-            
             let allArticles = [];
-            results.forEach(res => {
-                if(res.status === 'fulfilled' && res.value) allArticles = allArticles.concat(res.value);
-            });
+            for (const feed of feeds) {
+                const articles = await fetchRSS(feed);
+                allArticles = allArticles.concat(articles);
+            }
             
+            // CRITICAL FIX: Kugelsichere Sortierung, falls Google-News kein Datum liefert (verhindert NaN Absturz!)
             allArticles.sort((a, b) => {
                 const dateA = a.pubDate ? new Date(a.pubDate).getTime() : 0;
                 const dateB = b.pubDate ? new Date(b.pubDate).getTime() : 0;
@@ -1065,12 +1184,14 @@
             PAGE_CATEGORIES.forEach(c => byCat[c] = []);
             
             allArticles.forEach(a => {
+                // NEU: Wenn die Rubrik auf 0 Seiten steht, Artikel komplett blockieren!
                 if (pageConfig[a.category] === 0) return;
 
-                // FIX: Gelockerter Filter, damit auch Artikel ohne Beschreibung (oft bei Google/Bing News der Fall)
-                // in die Rotaion gelangen und das Quellen-Balancing nicht zerschossen wird.
-                if (a.title && a.title.length > 5 && !seenTitles.has(a.title)) {
-                    seenTitles.add(a.title); 
+                let hasDesc = (a.description && a.description.length > 0);
+                let hasContent = (a.content && a.content.length > 0);
+                
+                if (a.title && (hasDesc || hasContent) && !seenTitles.has(a.title)) {
+                    seenTitles.add(a.title); // Titel dauerhaft als "gesehen" markieren
                     a.image = extractImage(a);
                     
                     let useContent = false;
@@ -1080,40 +1201,49 @@
                         useContent = true;
                     }
                     
-                    a.cleanText = stripHtml(useContent ? a.content : (a.description || ''));
+                    a.cleanText = stripHtml(useContent ? a.content : a.description);
                     valid.push(a);
                     if(byCat[a.category]) byCat[a.category].push(a);
                 }
             });
 
+            // Tracking für das Source-Balancing (Quellen-Gleichberechtigung)
             let sourceUsage = {};
 
+            // Helper: Holt den besten Artikel und LÖSCHT IHN STRIKT aus allen Arrays
             const getArticle = (cat, needImage = false) => {
+                // STRIKTE TRENNUNG: Wenn eine Kategorie gefordert wird, nutze NUR diese!
                 let pool = cat ? (byCat[cat] || []) : valid;
                 
                 if (pool.length === 0) return null;
                 
+                // Intelligentes Sortieren (Source-Balancing)
                 pool.sort((a, b) => {
+                    // 1. Prio: Bilder (falls zwingend benötigt)
                     if (needImage) {
                         const aHasImg = a.image ? 1 : 0;
                         const bHasImg = b.image ? 1 : 0;
                         if (aHasImg !== bHasImg) return bHasImg - aHasImg;
                     }
                     
+                    // 2. Prio: Welche Quelle wurde weniger oft genutzt?
                     const aUsage = sourceUsage[a.sourceName] || 0;
                     const bUsage = sourceUsage[b.sourceName] || 0;
                     if (aUsage !== bUsage) return aUsage - bUsage;
                     
+                    // 3. Prio: Aktualität (Gesichert gegen ungültige Daten/NaN)
                     const dateA = a.pubDate ? new Date(a.pubDate).getTime() : 0;
                     const dateB = b.pubDate ? new Date(b.pubDate).getTime() : 0;
                     return (dateB || 0) - (dateA || 0);
                 });
                 
-                const article = pool[0];
+                const article = pool[0]; // Nehme den bestbewerteten Artikel
                 
                 if (article) {
+                    // Nutzungscounter für diese Quelle erhöhen
                     sourceUsage[article.sourceName] = (sourceUsage[article.sourceName] || 0) + 1;
                     
+                    // Lösche den gewählten Artikel restlos aus allen verfügbaren Listen
                     valid = valid.filter(a => a.title !== article.title);
                     Object.keys(byCat).forEach(k => {
                         byCat[k] = byCat[k].filter(a => a.title !== article.title);
@@ -1122,16 +1252,18 @@
                 return article;
             };
 
+            // SEITE 1: TITELSEITE BEFÜLLEN
             const page1Slots = document.querySelectorAll('#page-1 .article-slot');
             page1Slots.forEach(slot => {
                 const type = slot.dataset.type || '';
                 const needImg = slot.dataset.needImage === 'true';
                 let catPrefs = (type === 'lead' || type === 'blvd-lead') ? 'Politik' : null; 
                 const art = getArticle(catPrefs, needImg) || getArticle(null, needImg);
-                if(art) slot.innerHTML = createArticleHTML(art, type, needImg);
+                if(art) slot.innerHTML = createArticleHTML(art, type, needImg); // Parameter übergeben!
                 else slot.style.display = 'none';
             });
 
+            // FOLGESEITEN BEFÜLLEN (Strikt nach Rubrik)
             for (let i = 2; i <= totalPages; i++) {
                 const page = document.getElementById(`page-${i}`);
                 if(!page) continue;
@@ -1146,7 +1278,7 @@
                     
                     const art = getArticle(cat, needImg);
                     if (art) {
-                        slot.innerHTML = createArticleHTML(art, type, needImg);
+                        slot.innerHTML = createArticleHTML(art, type, needImg); // Parameter übergeben!
                         articlesFoundOnPage++;
                     } else {
                         slot.style.display = 'none'; 
@@ -1162,8 +1294,10 @@
                 }
             }
             
+            // NEU: Starte das nachträgliche Laden der fehlenden Bilder im Hintergrund!
             loadMissingImages();
 
+            // TEASER AUF SEITE 1 AKTUALISIEREN
             var p2 = document.getElementById('page-2');
             var p3 = document.getElementById('page-3');
             
@@ -1173,7 +1307,7 @@
             if (teaser1Kicker && teaser1Headline) {
                 if (p2) {
                     var firstHeadline2 = '';
-                    var hlEl2 = p2.querySelector('h3');
+                    var hlEl2 = p2.querySelector('h3'); // Allgemeine H3 reicht, da sowohl klassisch als auch BILD h3 nutzen
                     if(hlEl2) firstHeadline2 = hlEl2.textContent;
                     
                     teaser1Kicker.textContent = p2.dataset.category;
@@ -1223,6 +1357,7 @@
         feeds.forEach(feed => {
             const color = getCategoryColor(feed.category);
             
+            // Dropdown-Optionen für die Kategoriezuweisung erstellen
             let catOptions = PAGE_CATEGORIES.map(c => `<option value="${c}" ${c === feed.category ? 'selected' : ''}>${c}</option>`).join('');
             if (!PAGE_CATEGORIES.includes(feed.category)) {
                 catOptions += `<option value="${feed.category}" selected>${feed.category} (Gelöscht)</option>`;
@@ -1250,15 +1385,17 @@
 
     function renderSuggestedFeeds() {
         const container = document.getElementById('suggested-feeds-container');
-        container.innerHTML = ''; 
+        container.innerHTML = ''; // Leeren vor dem Neuaufbau
         
         Object.keys(FEED_CATALOG).forEach(groupName => {
+            // Gruppen-Überschrift
             const groupTitle = document.createElement('h5');
             groupTitle.className = 'text-[11px] font-bold text-gray-500 mt-3 mb-1.5 uppercase border-b border-gray-200 pb-1';
             groupTitle.textContent = groupName;
-            if (container.children.length === 0) groupTitle.classList.remove('mt-3');
+            if (container.children.length === 0) groupTitle.classList.remove('mt-3'); // Kein Margin beim ersten
             container.appendChild(groupTitle);
             
+            // Container für die Buttons
             const btnContainer = document.createElement('div');
             btnContainer.className = 'flex flex-wrap gap-1.5 mb-2';
             
@@ -1271,6 +1408,7 @@
                 btn.innerHTML = `<i class="fa-solid fa-plus mr-1"></i> ${feed.name}`;
                 
                 btn.onclick = async () => {
+                    // Automatische Rubrik-Aktivierung: Wenn Rubrik nicht existiert oder auf 0 steht
                     let configChanged = false;
                     if (!PAGE_CATEGORIES.includes(feed.category)) {
                         PAGE_CATEGORIES.push(feed.category);
@@ -1290,6 +1428,7 @@
                     await addFeedToDB({ name: feed.name, url: feed.url, category: feed.category });
                     await renderModalLists();
                     
+                    // Visuelles Feedback am Button
                     const origHtml = btn.innerHTML;
                     btn.innerHTML = `<i class="fa-solid fa-check"></i>`;
                     btn.style.backgroundColor = color;
@@ -1315,30 +1454,62 @@
     function setupEventListeners() {
         const modal = document.getElementById('settings-modal');
         
+        // Vollbild Logik
+        document.getElementById('btn-fullscreen').onclick = () => {
+            const docEl = document.documentElement;
+            if (!document.fullscreenElement) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(e => console.log(e));
+                } else if (docEl.webkitRequestFullscreen) { /* Safari */
+                    docEl.webkitRequestFullscreen();
+                } else if (docEl.msRequestFullscreen) { /* IE11 */
+                    docEl.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                }
+            }
+        };
+
+        // NEU: Blättern durch Tippen/Klicken auf die Bildschirmhälften (für Touch-Geräte)
         document.getElementById('book').addEventListener('click', (e) => {
+            // Interaktive Elemente (Links, Buttons, Teaser) vom Blättern ausschließen
             if (e.target.closest('a') || e.target.closest('button') || e.target.closest('input') || e.target.closest('.teaser-link') || e.target.closest('.page-nav')) {
                 return;
             }
+            
+            // Ermitteln, ob links oder rechts geklickt wurde
             const clickX = e.clientX;
             const halfScreen = window.innerWidth / 2;
             
-            if (clickX < halfScreen) prevPage();
-            else nextPage();
+            if (clickX < halfScreen) {
+                prevPage();
+            } else {
+                nextPage();
+            }
         });
 
+        // NEU: Name der Zeitung in Echtzeit beim Tippen speichern (verhindert Datenverlust)
         document.getElementById('config-newspaper-name').addEventListener('input', (e) => {
             newspaperName = e.target.value.trim() || 'DIE NEWS';
             localStorage.setItem('newspaper_name', newspaperName);
         });
 
+        // Theme Toggle Funktionalität
         document.getElementById('theme-toggle').onclick = () => {
             newspaperTheme = newspaperTheme === 'classic' ? 'boulevard' : 'classic';
             localStorage.setItem('newspaper_theme', newspaperTheme);
             applyTheme();
-            refreshNewspaper();
+            refreshNewspaper(); // Automatischer Neudruck beim Wechsel
         };
         
         document.getElementById('btn-open-settings').onclick = async () => {
+            // Werte in die Formularfelder laden
             document.getElementById('config-newspaper-name').value = newspaperName;
             await renderModalLists();
             modal.style.display = "block";
@@ -1350,20 +1521,21 @@
             if(confirm("ACHTUNG: Möchten Sie wirklich alle Einstellungen, Rubriken und eigenen Feeds restlos löschen und auf Werkseinstellungen zurücksetzen?")) {
                 localStorage.clear();
                 indexedDB.deleteDatabase(dbName);
-                location.reload(); 
+                location.reload(); // Lädt die Seite frisch im Ursprungszustand neu
             }
         };
 
         document.getElementById('btn-save-close').onclick = () => {
+            // Globale Einstellungen speichern
             newspaperName = document.getElementById('config-newspaper-name').value.trim() || 'DIE NEWS';
             localStorage.setItem('newspaper_name', newspaperName);
+            
             modal.style.display = "none";
             refreshNewspaper();
         };
         
         document.getElementById('btn-refresh').onclick = refreshNewspaper;
 
-        // SMART MODUS - MIT INTELLIGENTEM FALLBACK
         document.getElementById('btn-add-feed').onclick = async () => {
             const name = document.getElementById('new-feed-name').value.trim();
             let inputUrlOrKeyword = document.getElementById('new-feed-url').value.trim();
@@ -1371,6 +1543,7 @@
             const btn = document.getElementById('btn-add-feed');
 
             if (name && inputUrlOrKeyword) {
+                // Lade-Status auf dem Button anzeigen
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Verarbeite...';
                 btn.disabled = true;
@@ -1380,66 +1553,87 @@
                 let testArticles = [];
                 let smartModeUsed = false;
                 
-                const isKeyword = !inputUrlOrKeyword.includes('.') || inputUrlOrKeyword.includes(' ');
-
-                if (isKeyword) {
+                // SOCIAL MEDIA AUTO-KONVERTIERUNG
+                if (inputUrlOrKeyword.includes('reddit.com/r/') && !inputUrlOrKeyword.includes('.rss')) {
+                    // Reddit in RSS umwandeln
+                    inputUrlOrKeyword = inputUrlOrKeyword.replace(/\/$/, '') + '/.rss';
+                    finalUrl = inputUrlOrKeyword;
                     smartModeUsed = true;
-                    
-                    // SCHRITT 1: BING NEWS TESTEN
-                    const bUrl = `https://www.bing.com/news/search?q=${encodeURIComponent(inputUrlOrKeyword)}&format=rss&cc=de&setlang=de`;
-                    finalUrl = bUrl;
-                    testArticles = await attemptFetch(bUrl, { name, category });
-                    
-                    // SCHRITT 2: WENN BING BLOCKIERT, SOFORT ZU GOOGLE NEWS WECHSELN
-                    if (!testArticles || testArticles.length === 0) {
-                        const gUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(inputUrlOrKeyword)}&hl=de&gl=DE&ceid=DE:de`;
-                        finalUrl = gUrl;
-                        testArticles = await attemptFetch(gUrl, { name, category });
+                } else if (inputUrlOrKeyword.includes('youtube.com/@')) {
+                    // YouTube Handle in Channel ID auflösen (benötigt Fetch um die Channel ID zu finden)
+                    btn.innerHTML = '<i class="fa-solid fa-magnifying-glass fa-beat mr-1"></i> YouTube Scan...';
+                    try {
+                        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(inputUrlOrKeyword)}`);
+                        const data = await res.json();
+                        // Suche nach der channelId im HTML der Seite
+                        const match = data.contents.match(/itemprop="channelId"\s+content="([^"]+)"/) || data.contents.match(/"channelId":"([^"]+)"/);
+                        if (match && match[1]) {
+                            finalUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${match[1]}`;
+                            smartModeUsed = true;
+                        }
+                    } catch(e) {
+                        console.error("Fehler beim YouTube Handle Auflösen", e);
                     }
-                } else {
-                    if (!inputUrlOrKeyword.startsWith('http')) inputUrlOrKeyword = 'https://' + inputUrlOrKeyword;
-                    
-                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Teste URL...';
-                    testArticles = await attemptFetch(inputUrlOrKeyword, { name, category });
+                } else if (inputUrlOrKeyword.includes('youtube.com/channel/')) {
+                    // YouTube Channel URL in RSS umwandeln
+                    const channelId = inputUrlOrKeyword.split('youtube.com/channel/')[1].split('/')[0];
+                    finalUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+                    smartModeUsed = true;
+                }
 
+                // PRÜFUNG: Ist es ein Schlagwort oder eine URL? (Schlagwort: hat Leerzeichen oder keinen Punkt)
+                const isKeyword = !finalUrl.includes('.') || finalUrl.includes(' ');
+
+                if (isKeyword && !smartModeUsed) {
+                    // 1. SCHLAGWORT-SUCHE (Keywords)
+                    finalUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(finalUrl)}&hl=de&gl=DE&ceid=DE:de`;
+                    smartModeUsed = true;
+                    console.log("Nutze Keyword-Modus für:", inputUrlOrKeyword);
+                    testArticles = await fetchRSS({ name, url: finalUrl, category });
+                } else {
+                    // 2. URL-MODUS (Webseiten)
+                    if (!finalUrl.startsWith('http')) {
+                        finalUrl = 'https://' + finalUrl;
+                    }
+                    
+                    // Versuch 2a: Ist es vielleicht schon ein echter RSS Feed?
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Teste URL...';
+                    testArticles = await fetchRSS({ name, url: finalUrl, category });
+
+                    // Versuch 2b: Standard RSS-Pfade prüfen (z.B. versteckte WordPress Feeds unter /feed/)
                     if (!testArticles || testArticles.length === 0) {
-                        const hasFeedIndicator = inputUrlOrKeyword.includes('.rss') || inputUrlOrKeyword.includes('.xml') || inputUrlOrKeyword.endsWith('feed') || inputUrlOrKeyword.endsWith('feed/');
+                        const hasFeedIndicator = finalUrl.includes('.rss') || finalUrl.includes('.xml') || finalUrl.endsWith('feed') || finalUrl.endsWith('feed/');
                         
                         if (!hasFeedIndicator) {
                             btn.innerHTML = '<i class="fa-solid fa-magnifying-glass fa-beat mr-1"></i> Suche Feed-Pfad...';
-                            const feedUrl = inputUrlOrKeyword.endsWith('/') ? inputUrlOrKeyword + 'feed/' : inputUrlOrKeyword + '/feed/';
-                            const altTest = await attemptFetch(feedUrl, { name, category });
+                            const feedUrl = finalUrl.endsWith('/') ? finalUrl + 'feed/' : finalUrl + '/feed/';
+                            const altTest = await fetchRSS({ name, url: feedUrl, category });
                             
                             if (altTest && altTest.length > 0) {
                                 testArticles = altTest;
-                                inputUrlOrKeyword = feedUrl;
+                                finalUrl = feedUrl; // Gefundenen nativen Pfad übernehmen!
+                                console.log("Versteckten Standard-Feed gefunden:", feedUrl);
                             }
                         }
                     }
 
-                    if (!testArticles || testArticles.length === 0) {
+                    // Versuch 2c (SMART-MODUS): Wenn alle Stricke reißen, Google News Fallback nutzen!
+                    if ((!testArticles || testArticles.length === 0) && !smartModeUsed) {
                         try {
                             btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles fa-bounce mr-1"></i> Smart-Modus...';
-                            const domain = new URL(inputUrlOrKeyword).hostname.replace('www.', '');
+                            const domain = new URL(finalUrl).hostname.replace('www.', '');
+                            finalUrl = `https://news.google.com/rss/search?q=site:${domain}&hl=de&gl=DE&ceid=DE:de`;
                             smartModeUsed = true;
-                            
-                            const bUrl = `https://www.bing.com/news/search?q=site:${domain}&format=rss&cc=de&setlang=de`;
-                            finalUrl = bUrl;
-                            testArticles = await attemptFetch(bUrl, { name, category });
-                            
-                            if (!testArticles || testArticles.length === 0) {
-                                const gUrl = `https://news.google.com/rss/search?q=site:${domain}&hl=de&gl=DE&ceid=DE:de`;
-                                finalUrl = gUrl;
-                                testArticles = await attemptFetch(gUrl, { name, category });
-                            }
+                            console.log("Nutze Smart-Modus für Domain:", domain);
+                            testArticles = await fetchRSS({ name, url: finalUrl, category });
                         } catch(e) {
                             console.error("Smart Convert Fehler", e);
                         }
-                    } else {
-                        finalUrl = inputUrlOrKeyword;
                     }
                 }
 
+                // NEU: Wenn Smart-Modus (Keyword/Domain) aktiv ist, speichern wir den Feed 
+                // ZWINGEND ab, auch wenn der Test-Abruf temporär leer war/blockiert wurde.
                 if ((testArticles && testArticles.length > 0) || smartModeUsed) {
                     if (!PAGE_CATEGORIES.includes(category)) {
                         PAGE_CATEGORIES.push(category);
@@ -1455,10 +1649,11 @@
                     document.getElementById('new-feed-category').value = '';
                     await renderModalLists();
                     
+                    // Visuelles Feedback
                     if (smartModeUsed && (!testArticles || testArticles.length === 0)) {
                         btn.innerHTML = '<i class="fa-solid fa-check"></i> Gespeichert (ohne Test)';
                     } else if (smartModeUsed) {
-                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Smart-Feed erstellt!';
+                        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Feed erstellt!';
                     } else {
                         btn.innerHTML = '<i class="fa-solid fa-check"></i> Hinzugefügt';
                     }
@@ -1471,11 +1666,13 @@
                         btn.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-purple-600', 'hover:bg-purple-700');
                         btn.classList.add('bg-green-600', 'hover:bg-green-700');
                     }, 2500);
-                    return; 
+                    return; // Frühzeitig abbrechen
                 } else {
+                    // Test fehlgeschlagen und kein Smart-Modus möglich: Warnung ausgeben
                     alert("Achtung: Weder als RSS-Feed noch über den Smart-Modus konnten Artikel für diese Eingabe gefunden werden. Bitte prüfen Sie die Adresse.");
                 }
 
+                // Button wiederherstellen
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 btn.classList.remove('opacity-70', 'cursor-not-allowed');
@@ -1484,12 +1681,14 @@
             }
         };
 
+        // Tastatursteuerung
         document.addEventListener('keydown', (e) => {
             if (modal.style.display === "block") return;
             if (e.key === 'ArrowRight') nextPage();
             if (e.key === 'ArrowLeft') prevPage();
         });
 
+        // --- BACKUP: EXPORT ---
         document.getElementById('btn-export-news').onclick = async () => {
             const btn = document.getElementById('btn-export-news');
             const origHTML = btn.innerHTML;
@@ -1498,7 +1697,7 @@
             try {
                 const feeds = await getFeedsFromDB();
                 const exportData = {
-                    v: 1, 
+                    v: 1, // Versionsnummer für spätere Kompatibilität
                     name: newspaperName,
                     theme: newspaperTheme,
                     categories: PAGE_CATEGORIES,
@@ -1506,13 +1705,16 @@
                     feeds: feeds
                 };
                 
+                // "Verschlüsselung": Wandelt die Daten in einen Base64-String um (Unicode-sicher für Umlaute)
                 const jsonStr = JSON.stringify(exportData);
                 const encodedStr = btoa(unescape(encodeURIComponent(jsonStr)));
                 
+                // Erstelle die Datei im Speicher und lade sie herunter
                 const blob = new Blob([encodedStr], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
+                // Generiere Dateinamen z.B. "die_news.news"
                 a.download = (newspaperName.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'meine_zeitung') + '.news';
                 document.body.appendChild(a);
                 a.click();
@@ -1528,6 +1730,7 @@
             }
         };
 
+        // --- BACKUP: IMPORT ---
         document.getElementById('btn-import-news').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -1536,17 +1739,20 @@
             reader.onload = async (event) => {
                 try {
                     const encodedStr = event.target.result;
+                    // "Entschlüsseln": Umkehrung der Base64 Kodierung
                     const jsonStr = decodeURIComponent(escape(atob(encodedStr.trim())));
                     const importData = JSON.parse(jsonStr);
                     
                     if(!importData.v || !importData.feeds) throw new Error("Format ungültig");
                     
                     if(confirm("Möchten Sie dieses Backup laden? Ihre aktuellen Feeds & Einstellungen gehen dabei verloren.")) {
+                        // Neue Werte überschreiben
                         localStorage.setItem('newspaper_name', importData.name);
                         localStorage.setItem('newspaper_theme', importData.theme);
                         localStorage.setItem('newspaper_custom_categories', JSON.stringify(importData.categories));
                         localStorage.setItem('newspaper_page_config', JSON.stringify(importData.pageConfig));
                         
+                        // Datenbank (IndexedDB) leeren und mit neuen Feeds befüllen
                         const tx = db.transaction([storeName], "readwrite");
                         const store = tx.objectStore(storeName);
                         store.clear();
@@ -1554,14 +1760,14 @@
                         
                         tx.oncomplete = () => {
                             alert("Backup erfolgreich geladen! Die Zeitung startet nun neu.");
-                            location.reload(); 
+                            location.reload(); // Erzwingt kompletten Neustart mit neuen Daten
                         };
                     }
                 } catch (err) {
                     console.error(err);
                     alert("Fehler: Die hochgeladene Datei ist keine gültige .news Datei oder sie ist beschädigt.");
                 }
-                e.target.value = ''; 
+                e.target.value = ''; // Setzt den Upload-Button zurück
             };
             reader.readAsText(file);
         });
@@ -1571,7 +1777,7 @@
         setupEventListeners();
         renderSuggestedFeeds();
         renderPageSettings();
-        applyTheme(); 
+        applyTheme(); // Initial das gespeicherte Theme laden
         
         try {
             await initDB();
